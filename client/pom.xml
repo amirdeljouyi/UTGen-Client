@@ -148,6 +148,22 @@
             <artifactId>junit-platform-runner</artifactId>
             <version>1.8.0</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.apollographql.apollo3</groupId>
+            <artifactId>apollo-api-jvm</artifactId>
+            <version>3.8.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.apollographql.apollo3</groupId>
+            <artifactId>apollo-runtime-jvm</artifactId>
+            <version>3.8.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>logging-interceptor</artifactId>
+            <version>4.12.0</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -165,6 +181,58 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>com.github.aoudiamoncef</groupId>
+                <artifactId>apollo-client-maven-plugin</artifactId>
+                <version>7.0.0</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <services>
+                            <llm-api>
+                                <enabled>true</enabled>
+                                <addSourceRoot>true</addSourceRoot>
+                                <sourceFolder>${project.basedir}/src/main/java/org/evosuite/llm</sourceFolder>
+                                <schemaPath>${project.basedir}/src/main/java/org/evosuite/llm/schema.json</schemaPath>
+                                <includes>
+                                    <include>**/*.graphql</include>
+                                    <include>**/*.gql</include>
+                                    <include>**/*.json</include>
+                                    <include>**/*.sdl"</include>
+                                </includes>
+                                <excludes>
+                                    **/*.kakah
+                                </excludes>
+                                <compilationUnit>
+                                    <name>llm</name>
+                                    <outputDirectory>
+                                        ${project.build.directory}/generated-sources/graphql-client/
+                                    </outputDirectory>
+                                    <testDirectory>
+                                        ${project.build.directory}/generated-sources/graphql-client/test/
+                                    </testDirectory>
+                                    <debugDirectory>
+                                        ${project.build.directory}/generated-sources/graphql-client/debug/
+                                    </debugDirectory>
+                                    <generateOperationDescriptors>false</generateOperationDescriptors>
+                                    <compilerParams>
+                                        <rootFolders>
+                                            <rootFolder>${project.basedir}/src/main/java/org/evosuite/llm/</rootFolder>
+                                        </rootFolders>
+                                        <schemaPackageName>org.evosuite.llm</schemaPackageName>
+                                        <packageName>org.evosuite.llm</packageName>
+                                    </compilerParams>
+                                </compilationUnit>
+                            </llm-api>
+                            </services>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
         </plugins>
     </build>
 </project>

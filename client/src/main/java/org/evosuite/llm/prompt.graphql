@@ -1,0 +1,5 @@
+query Prompt($test: String!) {
+  prompt(prompt: {promptText: $test}) {
+    llmResponse
+  }
+}
