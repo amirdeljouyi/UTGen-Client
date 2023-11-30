@@ -34,6 +34,7 @@ import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.stoppingconditions.StoppingCondition;
 import org.evosuite.junit.JUnitAnalyzer;
 import org.evosuite.junit.writer.TestSuiteWriter;
+import org.evosuite.llm.LLMHandler;
 import org.evosuite.result.TestGenerationResult;
 import org.evosuite.result.TestGenerationResultBuilder;
 import org.evosuite.rmi.ClientServices;
@@ -517,6 +518,11 @@ public class TestSuiteGenerator {
             else
                 logger.warn("Cannot run Junit test. Cause {}", ClassPathHacker.getCause());
         }
+
+        // add LLM as Post-Processing job
+
+        LLMHandler llm = new LLMHandler(testSuite);
+        llm.improveUnderstandability();
     }
 
     /**

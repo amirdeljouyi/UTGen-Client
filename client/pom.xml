@@ -160,6 +160,11 @@
             <version>3.8.2</version>
         </dependency>
         <dependency>
+            <groupId>com.apollographql.apollo3</groupId>
+            <artifactId>apollo-rx3-support</artifactId>
+            <version>3.8.2</version>
+        </dependency>
+        <dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>logging-interceptor</artifactId>
             <version>4.12.0</version>
