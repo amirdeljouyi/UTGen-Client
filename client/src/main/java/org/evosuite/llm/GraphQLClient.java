@@ -14,11 +14,14 @@ import org.evosuite.llm.type.Response;
 import org.evosuite.utils.LoggingUtils;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.concurrent.TimeUnit;
+
 public class GraphQLClient {
     ApolloClient client;
 
     public GraphQLClient(){
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                .connectTimeout(5, TimeUnit.MINUTES).readTimeout(5, TimeUnit.MINUTES)
                 .build();
 
         ApolloClient.Builder builder = new ApolloClient.Builder()
