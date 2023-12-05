@@ -18,6 +18,9 @@ public class GraphQLClient {
     ApolloClient client;
 
     public GraphQLClient(){
+        OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                .build();
+
         ApolloClient.Builder builder = new ApolloClient.Builder()
                 .serverUrl("http://0.0.0.0:8000/graphql");
 
@@ -33,16 +36,14 @@ public class GraphQLClient {
 //                false
 //        );
 
-        client = builder.build();
-//        PromptQuery promptQuery = PromptQuery.builder().build();
+        client = builder.httpEngine(new DefaultHttpEngine(okHttpClient)).build();
     }
 
-    public void promptQuery(String testcase){
-        ApolloCall<PromptQuery.Data> queryCall = client.query(new PromptQuery(testcase));
-        Single<ApolloResponse<PromptQuery.Data>> queryResponse = Rx3Apollo.single(queryCall);
-        queryResponse.subscribe(response -> {
-            LoggingUtils.getEvoLogger().info("refined test is:" + response.data);
-            client.close();
-        });
+    public Single<ApolloResponse<PromptQuery.Data>> promptQuery(String testcase){
+        PromptQuery promptQuery = PromptQuery.builder().test(testcase).build();
+
+//        ApolloCall<PromptQuery.Data> queryCall = client.query(new PromptQuery(testcase));
+//        Single<ApolloResponse<PromptQuery.Data>> queryResponse = Rx3Apollo.single(queryCall);
+        return Rx3Apollo.single(client.query(promptQuery));
     }
 }
