@@ -1256,7 +1256,7 @@ public class Properties {
     public static boolean SANDBOX = true;
 
     @Parameter(key = "sandbox_mode", group = "Sandbox", description = "Mode in which the sandbox is applied")
-    public static Sandbox.SandboxMode SANDBOX_MODE = Sandbox.SandboxMode.RECOMMENDED;
+    public static Sandbox.SandboxMode SANDBOX_MODE = Sandbox.SandboxMode.OFF;
 
     @Parameter(key = "filter_sandbox_tests", group = "Sandbox", description = "Drop tests that require the sandbox")
     public static boolean FILTER_SANDBOX_TESTS = false;

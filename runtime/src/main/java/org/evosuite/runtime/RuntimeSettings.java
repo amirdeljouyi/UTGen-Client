@@ -79,7 +79,7 @@ public class RuntimeSettings {
     /**
      * How is the sandbox configured?
      */
-    public static Sandbox.SandboxMode sandboxMode = Sandbox.SandboxMode.RECOMMENDED;
+    public static Sandbox.SandboxMode sandboxMode = Sandbox.SandboxMode.OFF;
 
     /**
      * How many threads is each test allowed to start?
