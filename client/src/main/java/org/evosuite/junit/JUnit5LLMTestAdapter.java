@@ -129,7 +129,7 @@ public class JUnit5LLMTestAdapter implements UnitTestAdapter {
     public String getMethodDefinition(String testName) {
         //TODO remove once JUnit is fixed. See comments in Scaffolding regarding Timeout rule
         return "  @" + getJUnitTestShortName() + "\n  " + getTimeoutAnnotation()
-                + "\n" + "  public void " + testName + "() ";
+                + "\n" + "  public void " + testName + "()";
     }
 
     /* (non-Javadoc)
