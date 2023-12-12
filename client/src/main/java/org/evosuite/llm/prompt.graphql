@@ -1,5 +1,5 @@
-query Prompt($test: String!) {
-  prompt(prompt: {promptText: $test}) {
+query Prompt($test: String!, $type:String) {
+  prompt(prompt: {promptText: $test, promptType: $type}) {
     llmResponse
   }
 }

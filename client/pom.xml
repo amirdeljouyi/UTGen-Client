@@ -169,6 +169,18 @@
             <artifactId>logging-interceptor</artifactId>
             <version>4.12.0</version>
         </dependency>
+        <dependency>
+            <groupId>fr.inria.gforge.spoon</groupId>
+            <artifactId>spoon-core</artifactId>
+            <!-- See rendered release value at http://spoon.gforge.inria.fr/ -->
+            <version>8.4.0</version>
+        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>fr.inria.gforge.spoon</groupId>-->
+<!--            <artifactId>spoon-core</artifactId>-->
+<!--            &lt;!&ndash; See rendered release value at http://spoon.gforge.inria.fr/ &ndash;&gt;-->
+<!--            <version>10.4.2</version>-->
+<!--        </dependency>-->
     </dependencies>
 
     <build>

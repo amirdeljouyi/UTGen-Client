@@ -978,11 +978,11 @@ public class Properties {
     // ---------------------------------------------------------------
     // Output
     public enum OutputFormat {
-        JUNIT3, JUNIT4, TESTNG, JUNIT5
+        JUNIT3, JUNIT4, TESTNG, JUNIT5, JUNIT5LLM
     }
 
     @Parameter(key = "test_format", group = "Output", description = "Format of the resulting test cases")
-    public static OutputFormat TEST_FORMAT = OutputFormat.JUNIT4;
+    public static OutputFormat TEST_FORMAT = OutputFormat.JUNIT5LLM;
 
     @Parameter(key = "test_comments", group = "Output", description = "Include a header with coverage information for each test")
     public static boolean TEST_COMMENTS = false;
@@ -1237,14 +1237,14 @@ public class Properties {
     // ---------------------------------------------------------------
     // Naming
     public enum TestNamingStrategy {
-        NUMBERED, COVERAGE
+        NUMBERED, COVERAGE, LLM_BASED
     }
 
     @Parameter(key = "test_naming_strategy", group = "Output", description = "What strategy to use to derive names for tests")
     public static TestNamingStrategy TEST_NAMING_STRATEGY = TestNamingStrategy.NUMBERED;
 
     public enum VariableNamingStrategy {
-        TYPE_BASED, HEURISTICS_BASED
+        TYPE_BASED, HEURISTICS_BASED, LLM_BASED
     }
 
     @Parameter(key = "variable_naming_strategy", group = "Output", description = "What strategy to use to derive names for variables")

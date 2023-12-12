@@ -27,6 +27,7 @@ import org.evosuite.TimeController;
 import org.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
 import org.evosuite.junit.UnitTestAdapter;
 import org.evosuite.junit.naming.methods.CoverageGoalTestNameGenerationStrategy;
+import org.evosuite.junit.naming.methods.LLMBasedTestNameGenerationStrategy;
 import org.evosuite.junit.naming.methods.NumberedTestNameGenerationStrategy;
 import org.evosuite.junit.naming.methods.TestNameGenerationStrategy;
 import org.evosuite.result.TestGenerationResultBuilder;
@@ -227,6 +228,8 @@ public class TestSuiteWriter implements Opcodes {
             nameGenerator = new NumberedTestNameGenerationStrategy(testCases, results);
         } else if (Properties.TEST_NAMING_STRATEGY == Properties.TestNamingStrategy.COVERAGE) {
             nameGenerator = new CoverageGoalTestNameGenerationStrategy(testCases, results);
+        } else if (Properties.TEST_NAMING_STRATEGY == Properties.TestNamingStrategy.LLM_BASED) {
+            nameGenerator = new LLMBasedTestNameGenerationStrategy(testCases, results);
         } else {
             throw new RuntimeException("Unsupported naming strategy: " + Properties.TEST_NAMING_STRATEGY);
         }

@@ -49,4 +49,12 @@ public class GraphQLClient {
 //        Single<ApolloResponse<PromptQuery.Data>> queryResponse = Rx3Apollo.single(queryCall);
         return Rx3Apollo.single(client.query(promptQuery));
     }
+
+    public Single<ApolloResponse<PromptQuery.Data>> promptImproveVariableQuery(String testcase){
+        PromptQuery promptQuery = PromptQuery.builder().test(testcase).type("variable").build();
+
+//        ApolloCall<PromptQuery.Data> queryCall = client.query(new PromptQuery(testcase));
+//        Single<ApolloResponse<PromptQuery.Data>> queryResponse = Rx3Apollo.single(queryCall);
+        return Rx3Apollo.single(client.query(promptQuery));
+    }
 }

@@ -22,10 +22,7 @@ package org.evosuite.junit.writer;
 import org.apache.commons.lang3.StringUtils;
 import org.evosuite.Properties;
 import org.evosuite.Properties.OutputFormat;
-import org.evosuite.junit.JUnit3TestAdapter;
-import org.evosuite.junit.JUnit4TestAdapter;
-import org.evosuite.junit.JUnit5TestAdapter;
-import org.evosuite.junit.UnitTestAdapter;
+import org.evosuite.junit.*;
 import org.evosuite.testcarver.testcase.CarvedTestCase;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.execution.ExecutionResult;
@@ -167,6 +164,8 @@ public class TestSuiteWriterUtils {
             return new JUnit4TestAdapter();
         else if (Properties.TEST_FORMAT == OutputFormat.JUNIT5)
             return new JUnit5TestAdapter();
+        else if (Properties.TEST_FORMAT == OutputFormat.JUNIT5LLM)
+            return new JUnit5LLMTestAdapter();
         else
             throw new RuntimeException("Unknown output format: " + Properties.TEST_FORMAT);
     }
