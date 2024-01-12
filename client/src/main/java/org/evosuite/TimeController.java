@@ -161,9 +161,9 @@ public class TimeController {
             return;
         }
 
-        if (newState.getNumPhase() < state.getNumPhase()) {
-            throw new IllegalArgumentException("Phase '" + newState + "' cannot be executed after phase '" + state + "'");
-        }
+//        if (newState.getNumPhase() < state.getNumPhase()) {
+//            throw new IllegalArgumentException("Phase '" + newState + "' cannot be executed after phase '" + state + "'");
+//        }
 
         //first log the current state before changing it
         if (!state.equals(ClientState.NOT_STARTED)) {

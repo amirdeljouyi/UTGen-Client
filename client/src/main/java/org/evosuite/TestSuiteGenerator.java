@@ -35,6 +35,7 @@ import org.evosuite.ga.stoppingconditions.StoppingCondition;
 import org.evosuite.junit.JUnitAnalyzer;
 import org.evosuite.junit.writer.TestSuiteWriter;
 import org.evosuite.llm.LLMHandler;
+import org.evosuite.llm.Refinement;
 import org.evosuite.result.TestGenerationResult;
 import org.evosuite.result.TestGenerationResultBuilder;
 import org.evosuite.rmi.ClientServices;
@@ -342,18 +343,7 @@ public class TestSuiteGenerator {
         }
     }
 
-    /**
-     * Apply any readability optimizations and other techniques that should use
-     * or modify the generated tests
-     *
-     * @param testSuite
-     */
-    protected void postProcessTests(TestSuiteChromosome testSuite) {
-
-        // If overall time is short, the search might not have had enough time
-        // to come up with a suite without timeouts. However, they will slow
-        // down
-        // the rest of the process, and may lead to invalid tests
+    protected void postProcessMinimizationAndOptimization(TestSuiteChromosome testSuite) {
         testSuite.getTestChromosomes()
                 .removeIf(t -> t.getLastExecutionResult() != null && (t.getLastExecutionResult().hasTimeout() ||
                         t.getLastExecutionResult().hasTestException()));
@@ -374,6 +364,7 @@ public class TestSuiteGenerator {
         // TODO: This creates an inconsistency between
         // suite.getCoveredGoals().size() and suite.getNumCoveredGoals()
         // but it is not clear how to update numcoveredgoals
+
         List<TestFitnessFunction> goals = new ArrayList<>();
         for (TestFitnessFactory<?> ff : getFitnessFactories()) {
             goals.addAll(ff.getCoverageGoals());
@@ -394,6 +385,45 @@ public class TestSuiteGenerator {
 
             inliner.inline(testSuite);
         }
+
+        double before = testSuite.getFitness();
+
+        TestSuiteMinimizer minimizer = new TestSuiteMinimizer(getFitnessFactories());
+        minimizer.minimize(testSuite, true);
+
+        double after = testSuite.getFitness();
+        if (after > before + 0.01d) { // assume minimization
+            throw new Error("EvoSuite bug: minimization lead fitness from " + before + " to " + after);
+        }
+
+    }
+
+    /**
+     * Apply any readability optimizations and other techniques that should use
+     * or modify the generated tests
+     *
+     * @param testSuite
+     */
+    protected void postProcessTests(TestSuiteChromosome testSuite) {
+        postProcessMinimizationAndOptimization(testSuite);
+
+        LoggingUtils.getEvoLogger().info("* " + ClientProcess.getPrettyPrintIdentifier() + "Generated before the refinement " + testSuite.size()
+                + " tests with total length " + testSuite.totalLengthOfTestCases());
+
+        Refinement refinement = new Refinement(testSuite);
+        refinement.refine();
+
+        LoggingUtils.getEvoLogger().info("* " + ClientProcess.getPrettyPrintIdentifier() + "Generated after the refinement and before minimization " + testSuite.size()
+                + " tests with total length " + testSuite.totalLengthOfTestCases());
+
+//        ClientServices.getInstance().getClientNode().changeState(ClientState.INLINING);
+
+//        testSuite.getTestChromosomes()
+//                .removeIf(t -> t.getLastExecutionResult() != null && (t.getLastExecutionResult().hasTimeout() ||
+//                        t.getLastExecutionResult().hasTestException()));
+
+
+        LoggingUtils.getEvoLogger().info("* test suite is" + ClientProcess.getPrettyPrintIdentifier() + testSuite);
 
         if (Properties.MINIMIZE) {
             ClientServices.getInstance().getClientNode().changeState(ClientState.MINIMIZATION);
@@ -430,6 +460,9 @@ public class TestSuiteGenerator {
             ClientServices.track(RuntimeVariable.Result_Length, testSuite.totalLengthOfTestCases());
             ClientServices.track(RuntimeVariable.Minimized_Length, testSuite.totalLengthOfTestCases());
         }
+
+        LoggingUtils.getEvoLogger().info("* test suite is" + ClientProcess.getPrettyPrintIdentifier() + testSuite);
+
 
         if (Properties.COVERAGE) {
             ClientServices.getInstance().getClientNode().changeState(ClientState.COVERAGE_ANALYSIS);

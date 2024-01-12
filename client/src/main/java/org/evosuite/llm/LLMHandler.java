@@ -25,7 +25,7 @@ public class LLMHandler {
                 LoggingUtils.getEvoLogger().info("** Error is: " + result.data.prompt.llmResponse);
                 return null;
             }
-            LoggingUtils.getEvoLogger().info("Test Response is: " + testResponse);
+//            LoggingUtils.getEvoLogger().info("Test Response is: " + testResponse);
             return parseLLMTest(testResponse);
         } catch (Exception exp) {
             throw new RuntimeException(exp);
@@ -51,6 +51,23 @@ public class LLMHandler {
 
 
         return removeParentheses(result.data.prompt.llmResponse);
+    }
+
+    public String improveTestData(String test){
+        ApolloResponse<PromptQuery.Data> result = client.promptImproveTestDataQuery(test).blockingGet();
+        if(result.data == null) {
+            LoggingUtils.getEvoLogger().info("** Null Pointer Exception");
+            return null;
+        }
+        String testResponse = result.data.prompt.llmResponse;
+        if(testResponse.contains("ERROR:")){
+            LoggingUtils.getEvoLogger().info("** Error is: " + result.data.prompt.llmResponse);
+            return null;
+        }
+//        LoggingUtils.getEvoLogger().info("refined test data is: " + result.data.prompt.llmResponse);
+
+
+        return result.data.prompt.llmResponse;
     }
 
     public static String removeTwoFirstAndLast(String str)

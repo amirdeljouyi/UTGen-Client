@@ -475,6 +475,10 @@ public class ConstructorStatement extends EntityWithParametersStatement {
         return constructor.getDeclaringClass().getCanonicalName();
     }
 
+    public String getSimpleName() {
+        return constructor.getDeclaringClass().getSimpleName();
+    }
+
     @Override
     public String getMethodName() {
         return "<init>";
