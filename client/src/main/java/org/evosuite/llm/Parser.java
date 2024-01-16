@@ -1,6 +1,5 @@
 package org.evosuite.llm;
 
-import org.evosuite.testcase.ConstantInliner;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.statements.*;
@@ -10,11 +9,9 @@ import org.evosuite.utils.LoggingUtils;
 import spoon.Launcher;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtClass;
-import spoon.reflect.declaration.CtExecutable;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.reference.CtExecutableReference;
 import spoon.reflect.reference.CtLocalVariableReference;
-import spoon.support.reflect.code.CtInvocationImpl;
 import spoon.support.reflect.code.CtVariableReadImpl;
 
 import java.util.*;
@@ -33,10 +30,8 @@ public class Parser {
 
     public TestCase parseTestSnippet(String improvedTest) {
         String dummyClass = "class DummyClass { public static void main (){" + improvedTest + " }}";
-//        System.out.println("Dummy Class is: " + dummyClass);
         CtClass<?> ctClass = Launcher.parseClass(dummyClass);
 
-//        TestCase testCase = this.oldTestCase.clone();
         TestCase testCase = new DefaultTestCase();
         for (CtMethod<?> ctMethod : ctClass.getMethods()) {
             CtBlock<?> body = ctMethod.getBody();

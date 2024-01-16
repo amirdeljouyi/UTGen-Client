@@ -28,6 +28,9 @@ public class VariableNameStrategyFactory {
         if (Properties.VariableNamingStrategy.HEURISTICS_BASED.equals(identifierNamingStrategy)) {
             return new HeuristicsVariableNameStrategy();
         }
+        if (Properties.VariableNamingStrategy.LLM_BASED.equals(identifierNamingStrategy)) {
+            return new LLMBasedVariableNameStrategy();
+        }
         else {
             throw new IllegalArgumentException(String.format("Unknown variable naming strategy: %s", identifierNamingStrategy));
         }

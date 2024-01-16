@@ -26,24 +26,14 @@ public class Refinement {
 
         for(TestChromosome test: this.testSuite.getTestChromosomes()){
 
-            ArrayList<String> lines = new ArrayList<>();
             TestCase testCase = test.getTestCase();
             testCase.toCode();
             for(int i=0; i<testCase.size(); i++) {
                 Statement statement = testCase.getStatement(i);
                 LoggingUtils.getEvoLogger().info("statement is: " + statement + " type is: " + statement.getClass() + " return type " + statement.getReturnType());
                 LoggingUtils.getEvoLogger().info("statement code is: " + statement.getCode());
-//                if(statement instanceof EntityWithParametersStatement){
-//                    EntityWithParametersStatement stmParam = (EntityWithParametersStatement) statement;
-//                    lines.add(stmParam.getCode());
-////                    stmParam.getParameterReferences();
-//                }
-//                if(statement instanceof PrimitiveStatement){
-//                    PrimitiveStatement<?> stmPrm = (PrimitiveStatement<?>) statement;
-//                    lines.add(stmPrm.getCode());
-//                }
             }
-//            String linesOfTestData = appendLines(lines);
+
             String oldTestData = testCase.toCode();
             LoggingUtils.getEvoLogger().info("test data is: " + oldTestData);
             String improveTestData = this.llm.improveTestData(oldTestData);
