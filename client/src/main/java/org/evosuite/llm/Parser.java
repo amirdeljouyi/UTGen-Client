@@ -181,6 +181,8 @@ public class Parser {
         else if (Integer.class.isInstance(value))
             evoStm = new IntPrimitiveStatement(testCase, (Integer) value);
 
+        LoggingUtils.getEvoLogger().info("IT HAS NOT BEEN SUPPORTED YET: " + value);
+
         return evoStm;
     }
 
@@ -198,7 +200,6 @@ public class Parser {
     }
 
     private MethodStatement parseMethodStatement(TestCase testCase, CtInvocation<?> invocation) {
-//        LoggingUtils.getEvoLogger().info("Invocation: " + invocation.getTarget().getType() + " " + invocation.getExecutable().getSimpleName());
         MethodStatement matched = matchMethods(testCase, invocation);
 
         List<CtExpression<?>> args = invocation.getArguments();
@@ -207,6 +208,8 @@ public class Parser {
         if (matched == null) {
             return null;
         }
+
+        LoggingUtils.getEvoLogger().info("Matched Method is: " + matched);
 
 //        VariableReference callee = getVariableReference(testCase, matched.getCallee());
 //        if(callee == null)
@@ -220,6 +223,17 @@ public class Parser {
 
         for (int i=0; i < parameters.size(); i++){
             matched.replaceParameterReference(parameters.get(i), i);
+        }
+
+        List<VariableReference> references = matched.getParameterReferences();
+
+
+        for (int i=parameters.size(); i < references.size(); i++){
+            LoggingUtils.getEvoLogger().info("i " + i + " Parameters size() " + parameters.size() + " Num of Method Parameters: " + references.size()   );
+
+            Statement statement = new NullStatement(testCase, references.get(i).getType());
+
+            matched.replaceParameterReference(addStatement(testCase, statement), i);
         }
 
         return matched;
@@ -285,6 +299,7 @@ public class Parser {
 //                        LoggingUtils.getEvoLogger().info("invocation args: " + invocation.getArguments().size());
                         if (ctStatement.getParameterReferences().size() == invocation.getArguments().size()) {
                             Statement sourceStatement = testCase.getStatement(callee.getStPosition());
+                            LoggingUtils.getEvoLogger().info("source statement: " + sourceStatement + "callee: " + callee);
                             if (sourceStatement.getReturnType().equals(callee.getType())) {
                                 potentialStatements.add(ctStatement);
                             }

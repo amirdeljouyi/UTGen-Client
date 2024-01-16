@@ -26,7 +26,7 @@ public class LLMHandler {
                 return null;
             }
 //            LoggingUtils.getEvoLogger().info("Test Response is: " + testResponse);
-            return parseLLMTest(testResponse);
+            return testResponse;
         } catch (Exception exp) {
             throw new RuntimeException(exp);
         }
