@@ -20,6 +20,7 @@ public class Parser {
 
     HashMap<String, VariableReference> variableReferences = new HashMap<>();
     HashMap<String, Integer> calleeStatements = new HashMap<>();
+    HashMap<Integer, Integer> statementsIndex = new HashMap<>();
     int position = 0;
     TestCase oldTestCase;
 
@@ -314,6 +315,9 @@ public class Parser {
 //                        LoggingUtils.getEvoLogger().info("Num of Parameters is: " + ctStatement.getParameterReferences().size());
 //                        LoggingUtils.getEvoLogger().info("invocation args: " + invocation.getArguments().size());
                         if (ctStatement.getParameterReferences().size() == invocation.getArguments().size()) {
+                            if(testCase.size() < callee.getStPosition())
+                                continue;
+
                             Statement sourceStatement = testCase.getStatement(callee.getStPosition());
                             LoggingUtils.getEvoLogger().info("source statement: " + sourceStatement + "callee: " + callee);
                             if (sourceStatement.getReturnType().equals(callee.getType())) {
