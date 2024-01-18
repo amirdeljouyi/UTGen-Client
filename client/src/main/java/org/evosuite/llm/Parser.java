@@ -279,17 +279,33 @@ public class Parser {
             return null;
         }
 
+        if(target.getType() == null)
+            return null;
+
         for (Statement statement : oldTestCase) {
             if (statement instanceof MethodStatement) {
                 MethodStatement ctStatement = (MethodStatement) statement;
                 VariableReference callee = ctStatement.getCallee();
                 // also we should check types
 
+                // Check Static Methods
+                if(callee == null){
+                    if(ctStatement.isStatic()){
+                        if(ctStatement.getMethodName().equals(method.getSimpleName())) {
+                            if (ctStatement.getParameterReferences().size() == invocation.getArguments().size()) {
+                                potentialStatements.add(ctStatement);
+                            }
+                        }
+                    }
+                    continue;
+                }
+
                 if(testCase.size() < callee.getStPosition()) {
                     continue;
                 }
 
-                if (callee.getType().getTypeName().equals(target.getType().getQualifiedName()) || ((Class) callee.getType()).getSimpleName().equals(target.getType().getQualifiedName())) {
+                String qualifiedName = target.getType().getQualifiedName();
+                if (callee.getType().getTypeName().equals(qualifiedName) || ((Class) callee.getType()).getSimpleName().equals(qualifiedName)) {
                     if(ctStatement.getMethodName().equals(method.getSimpleName())) {
 //                        LoggingUtils.getEvoLogger().info("Callee: " + ((Class) callee.getType()).getSimpleName());
 //                        LoggingUtils.getEvoLogger().info("Target: " + target.getType().getQualifiedName());
