@@ -368,10 +368,6 @@ public class Parser {
                     continue;
                 }
 
-                if (testCase.size() < callee.getStPosition()) {
-                    continue;
-                }
-
                 String qualifiedName = target.getType().getQualifiedName();
                 String calleeSimpleClassName;
                 if(callee.getType() instanceof ParameterizedTypeImpl){
@@ -388,10 +384,11 @@ public class Parser {
 //                        LoggingUtils.getEvoLogger().info("Num of Parameters is: " + ctStatement.getParameterReferences().size());
 //                        LoggingUtils.getEvoLogger().info("invocation args: " + invocation.getArguments().size());
                         if (ctStatement.getParameterReferences().size() == invocation.getArguments().size()) {
-                            if (testCase.size() < callee.getStPosition())
+                            int index = statementsIndex.get(callee.getStPosition());
+                            if (testCase.size() < index)
                                 continue;
 
-                            Statement sourceStatement = testCase.getStatement(callee.getStPosition());
+                            Statement sourceStatement = testCase.getStatement(index);
                             LoggingUtils.getEvoLogger().info("source statement: " + sourceStatement + "callee: " + callee);
                             if (sourceStatement.getReturnType().equals(callee.getType())) {
                                 potentialStatements.add(ctStatement);
@@ -468,6 +465,9 @@ public class Parser {
     }
 
     private VariableReference addVariableStatement(TestCase testCase, Statement statement, String name) {
+        if(!statement.getTestCase().equals(testCase))
+            statementsIndex.put(statement.getPosition(), position);
+
         VariableReference variableReference = testCase.addStatement(statement.clone(testCase));
 //        VariableReference variableReference = testCase.addStatement(statement, position);
         variableReferences.put(name, variableReference);
