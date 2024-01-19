@@ -325,7 +325,7 @@ public class Parser {
                 VariableReference callee = ctStatement.getCallee();
                 // also we should check types
 
-                LoggingUtils.getEvoLogger().info("isStatic: " + ctStatement.isStatic() + " callee: " + callee);
+//                LoggingUtils.getEvoLogger().info("isStatic: " + ctStatement.isStatic() + " callee: " + callee);
                 if (!ctStatement.isStatic()) {
                     continue;
                 }
@@ -389,7 +389,7 @@ public class Parser {
                                 continue;
 
                             Statement sourceStatement = testCase.getStatement(index);
-                            LoggingUtils.getEvoLogger().info("source statement: " + sourceStatement + "callee: " + callee);
+                            LoggingUtils.getEvoLogger().info("source statement: " + sourceStatement + " callee: " + callee);
                             if (sourceStatement.getReturnType().equals(callee.getType())) {
                                 potentialStatements.add(ctStatement);
                             }
@@ -408,7 +408,7 @@ public class Parser {
         }
 
         int number = calleeStatements.get(id);
-        if (number == 0) {
+        if (!calleeStatements.containsKey(id)) {
             calleeStatements.put(id, 1);
             LoggingUtils.getEvoLogger().info("Potential Statements - 1 - " + potentialStatements.get(0).getPosition());
             return potentialStatements.get(0);
