@@ -69,6 +69,11 @@ public class Parser {
                         if (stm != null) {
                             addVariableStatement(testCase, stm, stmType.getSimpleName());
                         }
+                    } else if(assignment instanceof CtFieldRead){
+                        Statement stm = parseFieldStatement(testCase, (CtFieldRead<?>) assignment);
+                        if (stm != null) {
+                            addVariableStatement(testCase, stm, stmType.getSimpleName());
+                        }
                     }
                 }
 
@@ -180,7 +185,7 @@ public class Parser {
     private PrimitiveStatement<?> parsePrimitiveType(TestCase testCase, CtExpression<?> assignment) {
         Object value = ((CtLiteral<?>) assignment).getValue();
         if (value == null) {
-            LoggingUtils.getEvoLogger().info("IT HAS NOT BEEN SUPPORTED YET: " + assignment);
+            LoggingUtils.getEvoLogger().info("IT HAS NOT BEEN SUPPORTED YET: " + assignment.getType());
         } else if (value instanceof String)
             return new StringPrimitiveStatement(testCase, (String) value);
         else if (Integer.class.isInstance(value))
@@ -406,6 +411,25 @@ public class Parser {
         LoggingUtils.getEvoLogger().info("Potential Statements - 2 - " + potentialStatements.get(number).getPosition());
         calleeStatements.put(id, number + 1);
         return potentialStatements.get(number);
+    }
+
+    private FieldStatement parseFieldStatement(TestCase testCase, CtFieldRead<?> field) {
+        FieldStatement evoStm = null;
+        String fieldType = field.getTarget().toString();
+        LoggingUtils.getEvoLogger().info("Field is: " + field + " is " + field.getTarget());
+
+        for (Statement statement : oldTestCase) {
+            if (statement instanceof FieldStatement) {
+                FieldStatement ctStatement = (FieldStatement) statement;
+                String ctTypeName = ctStatement.getField().getField().getType().getSimpleName();
+                LoggingUtils.getEvoLogger().info("CtField is: " + ctStatement.getField().getField() + " " + ctStatement.getField().getField().getType().getSimpleName() + " " + ctStatement.getField().getName());
+                if(ctTypeName.equals(fieldType)){
+                    return ctStatement;
+                }
+            }
+        }
+
+        return evoStm;
     }
 
     private ArrayStatement parseArrayStatement(TestCase testCase, CtNewArray<?> newArray) {
