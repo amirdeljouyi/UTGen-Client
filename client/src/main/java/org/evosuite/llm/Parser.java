@@ -64,6 +64,11 @@ public class Parser {
                         if (stm != null) {
                             addVariableStatement(testCase, stm, stmType.getSimpleName());
                         }
+                    } else if (assignment instanceof CtNewArray) {
+                        Statement stm = parseArrayStatement(testCase, (CtNewArray<?>) assignment);
+                        if (stm != null) {
+                            addVariableStatement(testCase, stm, stmType.getSimpleName());
+                        }
                     }
                 }
 
@@ -174,21 +179,22 @@ public class Parser {
 
     private PrimitiveStatement<?> parsePrimitiveType(TestCase testCase, CtExpression<?> assignment) {
         Object value = ((CtLiteral<?>) assignment).getValue();
-        PrimitiveStatement<?> evoStm = null;
         if (value == null) {
             LoggingUtils.getEvoLogger().info("IT HAS NOT BEEN SUPPORTED YET: " + assignment);
         } else if (value instanceof String)
-            evoStm = new StringPrimitiveStatement(testCase, (String) value);
+            return new StringPrimitiveStatement(testCase, (String) value);
         else if (Integer.class.isInstance(value))
-            evoStm = new IntPrimitiveStatement(testCase, (Integer) value);
+            return new IntPrimitiveStatement(testCase, (Integer) value);
 
         LoggingUtils.getEvoLogger().info("IT HAS NOT BEEN SUPPORTED YET: " + value);
 
-        return evoStm;
+        return null;
     }
 
     private PrimitiveStatement<?> parseUnaryOperator(TestCase testCase, CtExpression<?> assignment, CtLocalVariableReference<?> reference) {
-//        Object value = ((CtUnaryOperator<?>) assignment).();
+        LoggingUtils.getEvoLogger().info("IT HAS NOT BEEN SUPPORTED YET: " + assignment);
+
+        //        Object value = ((CtUnaryOperator<?>) assignment).();
         PrimitiveStatement<?> evoStm = null;
 //        if (value == null) {
 //            evoStm = new NullStatement(testCase, reference.getType().getActualClass());
@@ -302,7 +308,7 @@ public class Parser {
         return null;
     }
 
-    private MethodStatement parseInstanceMethod(TestCase testCase, CtInvocation<?> invocation){
+    private MethodStatement parseInstanceMethod(TestCase testCase, CtInvocation<?> invocation) {
         ArrayList<MethodStatement> potentialStatements = new ArrayList<>();
         CtExpression<?> target = invocation.getTarget();
         CtExecutableReference<?> method = invocation.getExecutable();
@@ -379,6 +385,25 @@ public class Parser {
         LoggingUtils.getEvoLogger().info("Potential Statements - 2 - " + potentialStatements.get(number).getPosition());
         calleeStatements.put(id, number + 1);
         return potentialStatements.get(number);
+    }
+
+    private ArrayStatement parseArrayStatement(TestCase testCase, CtNewArray<?> newArray) {
+        // TODO: Now Only 1 dimension array is supported
+        ArrayStatement evoStm = null;
+        for (Statement statement : oldTestCase) {
+            if (statement instanceof ArrayStatement) {
+                ArrayStatement ctStatement = (ArrayStatement) statement;
+                List<Integer> lengths = ctStatement.getLengths();
+
+                LoggingUtils.getEvoLogger().info("Dimension: " + newArray.getDimensionExpressions().toString() + " Ct is: " + ctStatement + " Array: " + newArray);
+//                int size = ctStatement.size();
+                // also we should check types
+
+
+            }
+        }
+
+        return evoStm;
     }
 
     private VariableReference addStatement(TestCase testCase, Statement statement) {
