@@ -6,6 +6,7 @@ import org.evosuite.testcase.statements.*;
 import org.evosuite.testcase.statements.numeric.IntPrimitiveStatement;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.LoggingUtils;
+import org.evosuite.utils.ParameterizedTypeImpl;
 import spoon.Launcher;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtClass;
@@ -275,8 +276,9 @@ public class Parser {
         } else if (expression instanceof CtVariableReadImpl) {
             CtVariableReadImpl<?> ctVariable = (CtVariableReadImpl<?>) expression;
 //            LoggingUtils.getEvoLogger().info("Variable is: " + ctVariable.getVariable());
-            //                statement.getV
-            return variableReferences.get(findVariable(ctVariable.getVariable().getSimpleName()));
+//            LoggingUtils.getEvoLogger().info("variable is: " + variable);
+            VariableReference variable = findVariable(ctVariable.getVariable().getSimpleName());
+            return variable;
         }
         return null;
     }
@@ -371,7 +373,13 @@ public class Parser {
                 }
 
                 String qualifiedName = target.getType().getQualifiedName();
-                if (callee.getType().getTypeName().equals(qualifiedName) || ((Class) callee.getType()).getSimpleName().equals(qualifiedName)) {
+                String calleeSimpleClassName;
+                if(callee.getType() instanceof ParameterizedTypeImpl){
+                    calleeSimpleClassName = ((Class) ((ParameterizedTypeImpl) callee.getType()).getRawType()).getSimpleName();
+                } else {
+                    calleeSimpleClassName = ((Class) callee.getType()).getSimpleName();
+                }
+                if (callee.getType().getTypeName().equals(qualifiedName) || calleeSimpleClassName.equals(qualifiedName)) {
                     if (ctStatement.getMethodName().equals(method.getSimpleName())) {
 //                        LoggingUtils.getEvoLogger().info("Callee: " + ((Class) callee.getType()).getSimpleName());
 //                        LoggingUtils.getEvoLogger().info("Target: " + target.getType().getQualifiedName());
