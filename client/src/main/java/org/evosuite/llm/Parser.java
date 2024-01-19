@@ -407,12 +407,12 @@ public class Parser {
             return potentialStatements.get(0);
         }
 
-        int number = calleeStatements.get(id);
         if (!calleeStatements.containsKey(id)) {
             calleeStatements.put(id, 1);
             LoggingUtils.getEvoLogger().info("Potential Statements - 1 - " + potentialStatements.get(0).getPosition());
             return potentialStatements.get(0);
         }
+        int number = calleeStatements.get(id);
         LoggingUtils.getEvoLogger().info("Potential Statements - 2 - " + potentialStatements.get(number).getPosition());
         calleeStatements.put(id, number + 1);
         return potentialStatements.get(number);
