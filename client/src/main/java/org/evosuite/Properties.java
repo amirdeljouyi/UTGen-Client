@@ -1081,7 +1081,7 @@ public class Properties {
     @Parameter(key = "minimize_values", group = "Output", description = "Minimize constants and method calls")
     public static boolean MINIMIZE_VALUES = false;
 
-    @Parameter(key = "lm_strings", group = "Output", description = "Use language model on strings.  The parameter minimize_values must also be true.")
+    @Parameter(key = "lm_strings", group = "Output", description = "Use language model on strings. The parameter minimize_values must also be true.")
     public static boolean LM_STRINGS = false;
 
     @Parameter(key = "minimize_strings", group = "Output", description = "Try to minimise strings by deleting non-printables. The parameter minimize_values must also be true,")

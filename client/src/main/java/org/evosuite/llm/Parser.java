@@ -25,7 +25,7 @@ public class Parser {
     TestCase oldTestCase;
 
 
-    public Parser(TestCase oldTestCase){
+    public Parser(TestCase oldTestCase) {
         this.oldTestCase = oldTestCase.clone();
     }
 
@@ -49,7 +49,7 @@ public class Parser {
                         if (stm != null) {
                             addVariableStatement(testCase, stm, stmType.getSimpleName());
                         }
-                    } else if(assignment instanceof CtUnaryOperator){
+                    } else if (assignment instanceof CtUnaryOperator) {
                         Statement stm = parseUnaryOperator(testCase, assignment, reference);
                         if (stm != null) {
                             addVariableStatement(testCase, stm, stmType.getSimpleName());
@@ -59,7 +59,7 @@ public class Parser {
                         if (stm != null) {
                             addVariableStatement(testCase, stm, stmType.getSimpleName());
                         }
-                    } else if(assignment instanceof CtInvocation){
+                    } else if (assignment instanceof CtInvocation) {
                         Statement stm = parseMethodStatement(testCase, (CtInvocation<?>) assignment);
                         if (stm != null) {
                             addVariableStatement(testCase, stm, stmType.getSimpleName());
@@ -79,8 +79,8 @@ public class Parser {
         }
 
         int unusedVars = testCase.size() - position;
-        if(unusedVars>0)
-            for(int i=position; i<testCase.size(); i++)
+        if (unusedVars > 0)
+            for (int i = position; i < testCase.size(); i++)
                 testCase.remove(i);
 
         for (Statement s : testCase) {
@@ -98,7 +98,7 @@ public class Parser {
 //        removeUnusedVariables(testCase);
 //        System.out.println(ctClass);
 //
-        if(!testCase.isEmpty())
+        if (!testCase.isEmpty())
             LoggingUtils.getEvoLogger().info("TestCase is: " + testCase.toCode());
 
         return testCase;
@@ -109,18 +109,18 @@ public class Parser {
         CtConstructorCall<?> constructorCall = ((CtConstructorCall<?>) assignment);
 
         ConstructorStatement matched = matches(constructorCall);
-        if(matched == null)
+        if (matched == null)
             return null;
 
         List<CtExpression<?>> args = constructorCall.getArguments();
         ArrayList<VariableReference> parameters = new ArrayList<>();
         for (CtExpression<?> expression : args) {
             VariableReference variableReference = parseArgStatement(testCase, expression);
-            if(variableReference!=null)
+            if (variableReference != null)
                 parameters.add(variableReference);
         }
 
-        for (int i=0; i < Math.min(parameters.size(), matched.getNumParameters()); i++){
+        for (int i = 0; i < Math.min(parameters.size(), matched.getNumParameters()); i++) {
             matched.replaceParameterReference(parameters.get(i), i);
         }
 
@@ -140,7 +140,7 @@ public class Parser {
 //                LoggingUtils.getEvoLogger().info("getDeclaringClassName is: " + ctStatement.getDeclaringClassName());
                 // also we should check types
                 if (ctStatement.getDeclaringClassName().equals(constructorCall.getType().getQualifiedName()) || ctStatement.getSimpleName().equals(constructorCall.getType().getQualifiedName())) {
-                    if(ctStatement.getNumParameters() == constructorCall.getArguments().size())
+                    if (ctStatement.getNumParameters() == constructorCall.getArguments().size())
 //                        ctStatement.getParameterReferences().get(0).
                         return ctStatement;
                 }
@@ -150,9 +150,9 @@ public class Parser {
         return null;
     }
 
-    private VariableReference findVariable (String name){
-        for(Map.Entry<String, VariableReference> variable: variableReferences.entrySet()){
-            if(variable.getKey().equals(name)){
+    private VariableReference findVariable(String name) {
+        for (Map.Entry<String, VariableReference> variable : variableReferences.entrySet()) {
+            if (variable.getKey().equals(name)) {
                 return variable.getValue();
             }
         }
@@ -200,8 +200,8 @@ public class Parser {
         return evoStm;
     }
 
-    private MethodStatement parseMethodStatement(TestCase testCase, CtInvocation<?> invocation) {
-        MethodStatement matched = matchMethods(testCase, invocation);
+    private EntityWithParametersStatement parseMethodStatement(TestCase testCase, CtInvocation<?> invocation) {
+        EntityWithParametersStatement matched = matchMethods(testCase, invocation);
 
         List<CtExpression<?>> args = invocation.getArguments();
         ArrayList<VariableReference> parameters = new ArrayList<>();
@@ -218,19 +218,19 @@ public class Parser {
 
         for (CtExpression<?> expression : args) {
             VariableReference variableReference = parseArgStatement(testCase, expression);
-            if(variableReference!=null)
+            if (variableReference != null)
                 parameters.add(variableReference);
         }
 
-        for (int i=0; i < parameters.size(); i++){
+        for (int i = 0; i < parameters.size(); i++) {
             matched.replaceParameterReference(parameters.get(i), i);
         }
 
         List<VariableReference> references = matched.getParameterReferences();
 
 
-        for (int i=parameters.size(); i < references.size(); i++){
-            LoggingUtils.getEvoLogger().info("i " + i + " Parameters size() " + parameters.size() + " Num of Method Parameters: " + references.size()   );
+        for (int i = parameters.size(); i < references.size(); i++) {
+            LoggingUtils.getEvoLogger().info("i " + i + " Parameters size() " + parameters.size() + " Num of Method Parameters: " + references.size());
 
             Statement statement = new NullStatement(testCase, references.get(i).getType());
 
@@ -240,28 +240,28 @@ public class Parser {
         return matched;
     }
 
-    private VariableReference getVariableReference(TestCase testCase, VariableReference var){
-        if(var.getStPosition() != -1)
+    private VariableReference getVariableReference(TestCase testCase, VariableReference var) {
+        if (var.getStPosition() != -1)
             return null;
-        if(var.getStPosition() > testCase.size())
+        if (var.getStPosition() > testCase.size())
             return null;
         Statement statement = testCase.getStatement(var.getStPosition());
-        if(!statement.getReturnType().equals(var.getType()))
+        if (!statement.getReturnType().equals(var.getType()))
             return null;
         return statement.getReturnValue();
     }
 
-    private VariableReference parseArgStatement(TestCase testCase, CtExpression<?> expression){
+    private VariableReference parseArgStatement(TestCase testCase, CtExpression<?> expression) {
         Statement stm;
         if (expression instanceof CtLiteral) {
             stm = parsePrimitiveType(testCase, expression);
-            if(stm != null)
+            if (stm != null)
                 return addStatement(testCase, stm);
         } else if (expression instanceof CtConstructorCall) {
             stm = parseConstructorCall(testCase, expression);
-            if(stm != null)
+            if (stm != null)
                 return addStatement(testCase, stm);
-        } else if(expression instanceof CtVariableReadImpl){
+        } else if (expression instanceof CtVariableReadImpl) {
             CtVariableReadImpl<?> ctVariable = (CtVariableReadImpl<?>) expression;
 //            LoggingUtils.getEvoLogger().info("Variable is: " + ctVariable.getVariable());
             //                statement.getV
@@ -270,18 +270,51 @@ public class Parser {
         return null;
     }
 
-    private MethodStatement matchMethods(TestCase testCase, CtInvocation<?> invocation) {
+    private EntityWithParametersStatement matchMethods(TestCase testCase, CtInvocation<?> invocation) {
+        CtExpression<?> target = invocation.getTarget();
+        CtExecutableReference<?> method = invocation.getExecutable();
+        LoggingUtils.getEvoLogger().info("invocation is: " + invocation + " target is: " + target + " method is: " + method);
+
+        // Mock Method
+        if (method.getSimpleName().equals("mock")) {
+            return parseMockMethod(invocation);
+        }
+
+        // TODO: Static Method
+        // TODO: It's not correct necessarily because if the first statement was calling a Static or Mock Function then it would be incorrect
+
+
+        // Instance Method
+        return parseInstanceMethod(testCase, invocation);
+    }
+
+    private FunctionalMockStatement parseMockMethod(CtInvocation<?> invocation) {
+        for (Statement statement : oldTestCase) {
+            if (statement instanceof FunctionalMockStatement) {
+                FunctionalMockStatement ctStatement = (FunctionalMockStatement) statement;
+                LoggingUtils.getEvoLogger().info("target name is: " + ctStatement.getTargetClass().getSimpleName() + " argument is: " + invocation.getArguments().get(0).toString());
+                String className = invocation.getArguments().get(0).toString().replace(".class", "");
+                if (ctStatement.getTargetClass().getSimpleName().equals(className)) {
+                    return ctStatement;
+                }
+            }
+        }
+        return null;
+    }
+
+    private MethodStatement parseInstanceMethod(TestCase testCase, CtInvocation<?> invocation){
         ArrayList<MethodStatement> potentialStatements = new ArrayList<>();
         CtExpression<?> target = invocation.getTarget();
         CtExecutableReference<?> method = invocation.getExecutable();
         String id = target + "." + method;
 
-        if(testCase.isEmpty()) {
+        if (testCase.isEmpty()) {
             return null;
         }
 
-        if(target.getType() == null)
+        if (target.getType() == null) {
             return null;
+        }
 
         for (Statement statement : oldTestCase) {
             if (statement instanceof MethodStatement) {
@@ -290,9 +323,9 @@ public class Parser {
                 // also we should check types
 
                 // Check Static Methods
-                if(callee == null){
-                    if(ctStatement.isStatic()){
-                        if(ctStatement.getMethodName().equals(method.getSimpleName())) {
+                if (callee == null) {
+                    if (ctStatement.isStatic()) {
+                        if (ctStatement.getMethodName().equals(method.getSimpleName())) {
                             if (ctStatement.getParameterReferences().size() == invocation.getArguments().size()) {
                                 potentialStatements.add(ctStatement);
                             }
@@ -301,13 +334,13 @@ public class Parser {
                     continue;
                 }
 
-                if(testCase.size() < callee.getStPosition()) {
+                if (testCase.size() < callee.getStPosition()) {
                     continue;
                 }
 
                 String qualifiedName = target.getType().getQualifiedName();
                 if (callee.getType().getTypeName().equals(qualifiedName) || ((Class) callee.getType()).getSimpleName().equals(qualifiedName)) {
-                    if(ctStatement.getMethodName().equals(method.getSimpleName())) {
+                    if (ctStatement.getMethodName().equals(method.getSimpleName())) {
 //                        LoggingUtils.getEvoLogger().info("Callee: " + ((Class) callee.getType()).getSimpleName());
 //                        LoggingUtils.getEvoLogger().info("Target: " + target.getType().getQualifiedName());
 //                        LoggingUtils.getEvoLogger().info("Method name is: " + ctStatement.getMethodName());
@@ -315,7 +348,7 @@ public class Parser {
 //                        LoggingUtils.getEvoLogger().info("Num of Parameters is: " + ctStatement.getParameterReferences().size());
 //                        LoggingUtils.getEvoLogger().info("invocation args: " + invocation.getArguments().size());
                         if (ctStatement.getParameterReferences().size() == invocation.getArguments().size()) {
-                            if(testCase.size() < callee.getStPosition())
+                            if (testCase.size() < callee.getStPosition())
                                 continue;
 
                             Statement sourceStatement = testCase.getStatement(callee.getStPosition());
@@ -329,16 +362,16 @@ public class Parser {
             }
         }
 
-        if(potentialStatements.isEmpty())
+        if (potentialStatements.isEmpty())
             return null;
 
-        if(potentialStatements.size() == 1) {
+        if (potentialStatements.size() == 1) {
             LoggingUtils.getEvoLogger().info("Potential Statements - 0 - " + potentialStatements.get(0).getPosition());
             return potentialStatements.get(0);
         }
 
         int number = calleeStatements.get(id);
-        if(number == 0) {
+        if (number == 0) {
             calleeStatements.put(id, 1);
             LoggingUtils.getEvoLogger().info("Potential Statements - 1 - " + potentialStatements.get(0).getPosition());
             return potentialStatements.get(0);
@@ -348,7 +381,7 @@ public class Parser {
         return potentialStatements.get(number);
     }
 
-    private VariableReference addStatement(TestCase testCase, Statement statement){
+    private VariableReference addStatement(TestCase testCase, Statement statement) {
         VariableReference variableReference = testCase.addStatement(statement.clone(testCase));
 //        VariableReference variableReference = testCase.addStatement(statement, position);
 //        variableReferences.put(position, variableReference);
@@ -356,7 +389,7 @@ public class Parser {
         return variableReference;
     }
 
-    private VariableReference addVariableStatement(TestCase testCase, Statement statement, String name){
+    private VariableReference addVariableStatement(TestCase testCase, Statement statement, String name) {
         VariableReference variableReference = testCase.addStatement(statement.clone(testCase));
 //        VariableReference variableReference = testCase.addStatement(statement, position);
         variableReferences.put(name, variableReference);
