@@ -280,15 +280,15 @@ public class Parser {
         CtExpression<?> target = invocation.getTarget();
         CtExecutableReference<?> method = invocation.getExecutable();
         LoggingUtils.getEvoLogger().info("invocation is: " + invocation + " target is: " + target + " method is: " + method);
-
         // Mock Method
         if (method.getSimpleName().equals("mock")) {
             return parseMockMethod(invocation);
         }
 
         // TODO: Static Method
-        // TODO: It's not correct necessarily because if the first statement was calling a Static or Mock Function then it would be incorrect
-
+        MethodStatement staticMethod = parseStaticMethod(testCase, invocation);
+        if (staticMethod != null)
+            return staticMethod;
 
         // Instance Method
         return parseInstanceMethod(testCase, invocation);
@@ -305,6 +305,35 @@ public class Parser {
                 }
             }
         }
+        return null;
+    }
+
+    private MethodStatement parseStaticMethod(TestCase testCase, CtInvocation<?> invocation) {
+        CtExecutableReference<?> method = invocation.getExecutable();
+        CtExpression<?> target = invocation.getTarget();
+
+        for (Statement statement : oldTestCase) {
+            if (statement instanceof MethodStatement) {
+                MethodStatement ctStatement = (MethodStatement) statement;
+                VariableReference callee = ctStatement.getCallee();
+                // also we should check types
+
+                LoggingUtils.getEvoLogger().info("isStatic: " + ctStatement.isStatic() + " callee: " + callee);
+                if (!ctStatement.isStatic()) {
+                    continue;
+                }
+
+                // Check Static Methods
+                if (callee == null) {
+                    if (ctStatement.getMethodName().equals(method.getSimpleName())) {
+                        if (ctStatement.getParameterReferences().size() == invocation.getArguments().size()) {
+                            return ctStatement;
+                        }
+                    }
+                }
+            }
+        }
+
         return null;
     }
 
@@ -328,15 +357,7 @@ public class Parser {
                 VariableReference callee = ctStatement.getCallee();
                 // also we should check types
 
-                // Check Static Methods
                 if (callee == null) {
-                    if (ctStatement.isStatic()) {
-                        if (ctStatement.getMethodName().equals(method.getSimpleName())) {
-                            if (ctStatement.getParameterReferences().size() == invocation.getArguments().size()) {
-                                potentialStatements.add(ctStatement);
-                            }
-                        }
-                    }
                     continue;
                 }
 
