@@ -74,7 +74,7 @@ public interface UnitTestAdapter extends JUnitAnnotationProvider {
      * @param id         a int.
      * @return a {@link java.lang.String} object.
      */
-    String getTestString(int id, TestCase test, Map<Integer, Throwable> exceptions);
+    String getTestString(int id, TestCase test, Map<Integer, Throwable> exceptions, Boolean toImprove);
 
     /**
      * Return the sequence of method calls for a test
@@ -86,7 +86,7 @@ public interface UnitTestAdapter extends JUnitAnnotationProvider {
      * @return a {@link java.lang.String} object.
      */
     String getTestString(int id, TestCase test,
-                         Map<Integer, Throwable> exceptions, TestCodeVisitor visitor);
+                         Map<Integer, Throwable> exceptions, TestCodeVisitor visitor, Boolean toImprove);
 
     /**
      * Add the non-functional requirement to the test case.

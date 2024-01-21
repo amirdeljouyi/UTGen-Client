@@ -149,7 +149,7 @@ public class JUnit5TestAdapter implements UnitTestAdapter {
      * {@inheritDoc}
      */
     @Override
-    public String getTestString(int id, TestCase test, Map<Integer, Throwable> exceptions) {
+    public String getTestString(int id, TestCase test, Map<Integer, Throwable> exceptions, Boolean toImprove) {
         return test.toCode(exceptions);
     }
 
@@ -162,7 +162,7 @@ public class JUnit5TestAdapter implements UnitTestAdapter {
      */
     @Override
     public String getTestString(int id, TestCase test,
-                                Map<Integer, Throwable> exceptions, TestCodeVisitor visitor) {
+                                Map<Integer, Throwable> exceptions, TestCodeVisitor visitor, Boolean toImprove) {
         visitor.setExceptions(exceptions);
         test.accept(visitor);
         visitor.clearExceptions();

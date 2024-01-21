@@ -317,7 +317,7 @@ public abstract class JUnitAnalyzer {
 
         try {
             //now generate the JUnit test case
-            List<File> generated = suite.writeTestSuite(name, dir.getAbsolutePath(), Collections.EMPTY_LIST);
+            List<File> generated = suite.writeTestSuite(name, dir.getAbsolutePath(), Collections.EMPTY_LIST, false);
             for (File file : generated) {
                 if (!file.exists()) {
                     logger.error("Supposed to generate " + file

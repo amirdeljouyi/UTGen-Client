@@ -26,6 +26,7 @@ import org.evosuite.llm.LLMHandler;
 import org.evosuite.runtime.vnet.NonFunctionalRequirementExtension;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestCodeVisitor;
+import org.evosuite.utils.LoggingUtils;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 import java.util.List;
@@ -62,6 +63,7 @@ public class JUnit5LLMTestAdapter implements UnitTestAdapter {
     }
 
     private final LLMHandler llm = new LLMHandler();
+    private int numberCalled = 0;
 
     private String getJUnitTestShortName() {
         if (Properties.ECLIPSE_PLUGIN) {
@@ -152,12 +154,17 @@ public class JUnit5LLMTestAdapter implements UnitTestAdapter {
      * {@inheritDoc}
      */
     @Override
-    public String getTestString(int id, TestCase test, Map<Integer, Throwable> exceptions) {
-        String code =  test.toCode(exceptions);
-        String improvedCode = llm.improveUnderstandability(code);
-        if(improvedCode == null)
-            return code;
-        else return improvedCode;
+    public String getTestString(int id, TestCase test, Map<Integer, Throwable> exceptions, Boolean toImprove) {
+        String code = test.toCode(exceptions);
+        LoggingUtils.getEvoLogger().info("** Write a test suite: " + id + " called: " + numberCalled + " to improve: " + toImprove);
+        numberCalled++;
+
+        if (toImprove) {
+            String improvedCode = llm.improveUnderstandability(code);
+            if (improvedCode != null)
+                return improvedCode;
+        }
+        return code;
     }
 
     /* (non-Javadoc)
@@ -169,15 +176,21 @@ public class JUnit5LLMTestAdapter implements UnitTestAdapter {
      */
     @Override
     public String getTestString(int id, TestCase test,
-                                Map<Integer, Throwable> exceptions, TestCodeVisitor visitor) {
+                                Map<Integer, Throwable> exceptions, TestCodeVisitor visitor, Boolean toImprove) {
+        LoggingUtils.getEvoLogger().info("** Write a test suite: " + id + " called: " + numberCalled + " to improve: " + toImprove);
+        numberCalled++;
+
         visitor.setExceptions(exceptions);
         test.accept(visitor);
         visitor.clearExceptions();
         String code = visitor.getCode();
-        String improvedCode = llm.improveUnderstandability(code);
-        if(improvedCode == null)
-            return code;
-        else return improvedCode;
+
+        if (toImprove) {
+            String improvedCode = llm.improveUnderstandability(code);
+            if (improvedCode != null)
+                return improvedCode;
+        }
+        return code;
     }
 
     @Override

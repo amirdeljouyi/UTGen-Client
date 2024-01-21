@@ -185,7 +185,7 @@ public class TestSuiteWriter implements Opcodes {
      * @param name      Name of the class
      * @param directory Output directory
      */
-    public List<File> writeTestSuite(String name, String directory, List<ExecutionResult> cachedResults) throws IllegalArgumentException {
+    public List<File> writeTestSuite(String name, String directory, List<ExecutionResult> cachedResults, Boolean toImprove) throws IllegalArgumentException {
 
         if (name == null || name.isEmpty()) {
             throw new IllegalArgumentException("Empty test class name");
@@ -229,7 +229,10 @@ public class TestSuiteWriter implements Opcodes {
         } else if (Properties.TEST_NAMING_STRATEGY == Properties.TestNamingStrategy.COVERAGE) {
             nameGenerator = new CoverageGoalTestNameGenerationStrategy(testCases, results);
         } else if (Properties.TEST_NAMING_STRATEGY == Properties.TestNamingStrategy.LLM_BASED) {
-            nameGenerator = new LLMBasedTestNameGenerationStrategy(testCases, results);
+            if(toImprove)
+                nameGenerator = new LLMBasedTestNameGenerationStrategy(testCases, results);
+            else
+                nameGenerator = new CoverageGoalTestNameGenerationStrategy(testCases, results);
         } else {
             throw new RuntimeException("Unsupported naming strategy: " + Properties.TEST_NAMING_STRATEGY);
         }
@@ -246,14 +249,14 @@ public class TestSuiteWriter implements Opcodes {
         if (Properties.OUTPUT_GRANULARITY == OutputGranularity.MERGED || testCases.size() == 0) {
             File file = new File(dir + "/" + name + ".java");
             //executor.newObservers();
-            content = getUnitTestsAllInSameFile(name, results);
+            content = getUnitTestsAllInSameFile(name, results, toImprove);
             FileIOUtils.writeFile(content, file);
             generated.add(file);
         } else {
             for (int i = 0; i < testCases.size(); i++) {
                 File file = new File(dir + "/" + name + "_" + i + ".java"); // e.g., dir/Foo_ESTest_0.java
                 //executor.newObservers();
-                String testCode = getOneUnitTestInAFile(name, i, results);
+                String testCode = getOneUnitTestInAFile(name, i, results, toImprove);
                 FileIOUtils.writeFile(testCode, file);
                 content += testCode;
                 generated.add(file);
@@ -320,7 +323,7 @@ public class TestSuiteWriter implements Opcodes {
      * @param name Name of the class file
      * @return String representation of JUnit test file
      */
-    private String getUnitTestsAllInSameFile(String name, List<ExecutionResult> results) {
+    private String getUnitTestsAllInSameFile(String name, List<ExecutionResult> results, Boolean toImprove) {
 
         /*
          * if there was any security exception, then we need to scaffold the
@@ -340,7 +343,7 @@ public class TestSuiteWriter implements Opcodes {
             builder.append(getEmptyTest());
         } else {
             for (int i = 0; i < testCases.size(); i++) {
-                builder.append(testToString(i, i, results.get(i)));
+                builder.append(testToString(i, i, results.get(i), toImprove));
             }
         }
         builder.append(getFooter());
@@ -355,7 +358,7 @@ public class TestSuiteWriter implements Opcodes {
      * @param testId a int.
      * @return String representation of JUnit test file
      */
-    private String getOneUnitTestInAFile(String name, int testId, List<ExecutionResult> results) {
+    private String getOneUnitTestInAFile(String name, int testId, List<ExecutionResult> results, Boolean toImprove) {
 
         boolean wasSecurityException = results.get(testId).hasSecurityException();
 
@@ -367,7 +370,7 @@ public class TestSuiteWriter implements Opcodes {
             builder.append(new Scaffolding().getBeforeAndAfterMethods(name + "_" + testId, wasSecurityException, results));
         }
 
-        builder.append(testToString(testId, testId, results.get(testId)));
+        builder.append(testToString(testId, testId, results.get(testId), toImprove));
         builder.append(getFooter());
 
         return builder.toString();
@@ -623,7 +626,7 @@ public class TestSuiteWriter implements Opcodes {
      * @param result a {@link org.evosuite.testcase.execution.ExecutionResult} object.
      * @return String representation of test case
      */
-    protected String testToString(int number, int id, ExecutionResult result) {
+    protected String testToString(int number, int id, ExecutionResult result, Boolean toImprove) {
 
         boolean wasSecurityException = result.hasSecurityException();
 
@@ -692,7 +695,7 @@ public class TestSuiteWriter implements Opcodes {
         }
 
         for (String line : adapter.getTestString(id, test,
-                result.exposeExceptionMapping(), visitor).split("\\r?\\n")) {
+                result.exposeExceptionMapping(), visitor, toImprove).split("\\r?\\n")) {
             builder.append(CODE_SPACE);
             builder.append(line);
             builder.append(NEWLINE);
