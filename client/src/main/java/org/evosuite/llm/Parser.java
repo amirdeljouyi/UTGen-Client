@@ -3,7 +3,7 @@ package org.evosuite.llm;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.statements.*;
-import org.evosuite.testcase.statements.numeric.IntPrimitiveStatement;
+import org.evosuite.testcase.statements.numeric.*;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.ParameterizedTypeImpl;
@@ -170,29 +170,33 @@ public class Parser {
         return null;
     }
 
-    private PrimitiveStatement<?> parsePrimitiveType(TestCase testCase, CtExpression<?> assignment, Class<?> actualClass) {
-        Object value = ((CtLiteral<?>) assignment).getValue();
-        PrimitiveStatement<?> evoStm = null;
-        if (value == null) {
-            evoStm = new NullStatement(testCase, actualClass);
-        } else if (value instanceof String)
-            evoStm = new StringPrimitiveStatement(testCase, (String) value);
-        else if (Integer.class.isInstance(value))
-            evoStm = new IntPrimitiveStatement(testCase, (Integer) value);
-
-        return evoStm;
+    private PrimitiveStatement<?> parsePrimitiveType(TestCase testCase, CtExpression<?> assignment) {
+        return parsePrimitiveType(testCase, assignment, null);
     }
 
-    private PrimitiveStatement<?> parsePrimitiveType(TestCase testCase, CtExpression<?> assignment) {
+    private PrimitiveStatement<?> parsePrimitiveType(TestCase testCase, CtExpression<?> assignment, Class<?> actualClass) {
         Object value = ((CtLiteral<?>) assignment).getValue();
         if (value == null) {
-            LoggingUtils.getEvoLogger().info("IT HAS NOT BEEN SUPPORTED YET: " + assignment.getType());
+            if(actualClass != null)
+                return new NullStatement(testCase, actualClass);
+            else
+                LoggingUtils.getEvoLogger().info("IT HAS NOT BEEN SUPPORTED YET: " + assignment);
         } else if (value instanceof String)
             return new StringPrimitiveStatement(testCase, (String) value);
         else if (Integer.class.isInstance(value))
             return new IntPrimitiveStatement(testCase, (Integer) value);
+        else if (Double.class.isInstance(value))
+            return new DoublePrimitiveStatement(testCase, (Double) value);
+        else if (Short.class.isInstance(value))
+            return new ShortPrimitiveStatement(testCase, (Short) value);
+        else if (Float.class.isInstance(value))
+            return new FloatPrimitiveStatement(testCase, (Float) value);
+        else if (Long.class.isInstance(value))
+            return new LongPrimitiveStatement(testCase, (Long) value);
+        else if (value instanceof Boolean)
+            return new BooleanPrimitiveStatement(testCase, (Boolean) value);
 
-        LoggingUtils.getEvoLogger().info("IT HAS NOT BEEN SUPPORTED YET: " + value);
+        LoggingUtils.getEvoLogger().info("IT HAS NOT BEEN SUPPORTED YET: " + assignment);
 
         return null;
     }
@@ -403,17 +407,15 @@ public class Parser {
             return null;
 
         if (potentialStatements.size() == 1) {
-            LoggingUtils.getEvoLogger().info("Potential Statements - 0 - " + potentialStatements.get(0).getPosition());
             return potentialStatements.get(0);
         }
 
         if (!calleeStatements.containsKey(id)) {
             calleeStatements.put(id, 1);
-            LoggingUtils.getEvoLogger().info("Potential Statements - 1 - " + potentialStatements.get(0).getPosition());
             return potentialStatements.get(0);
         }
+
         int number = calleeStatements.get(id);
-        LoggingUtils.getEvoLogger().info("Potential Statements - 2 - " + potentialStatements.get(number).getPosition());
         calleeStatements.put(id, number + 1);
         return potentialStatements.get(number);
     }
