@@ -13,6 +13,7 @@ import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.reference.CtExecutableReference;
 import spoon.reflect.reference.CtLocalVariableReference;
+import spoon.reflect.reference.CtTypeReference;
 import spoon.support.reflect.code.CtVariableReadImpl;
 
 import java.util.*;
@@ -45,33 +46,37 @@ public class Parser {
                     CtLocalVariableReference<?> reference = stmType.getReference();
                     CtExpression<?> assignment = stmType.getAssignment();
                     LoggingUtils.getEvoLogger().info(assignment.getClass().toString());
+                    Statement stm;
                     if (assignment instanceof CtLiteral) {
-                        Statement stm = parsePrimitiveType(testCase, assignment, reference.getType().getActualClass());
+                        if(((CtLiteral<?>) assignment).getValue() == null)
+                            stm = parseNullStatement(testCase, reference.getType());
+                        else
+                            stm = parsePrimitiveType(testCase, assignment);
                         if (stm != null) {
                             addVariableStatement(testCase, stm, stmType.getSimpleName());
                         }
                     } else if (assignment instanceof CtUnaryOperator) {
-                        Statement stm = parseUnaryOperator(testCase, assignment, reference);
+                        stm = parseUnaryOperator(testCase, assignment, reference);
                         if (stm != null) {
                             addVariableStatement(testCase, stm, stmType.getSimpleName());
                         }
                     } else if (assignment instanceof CtConstructorCall) {
-                        Statement stm = parseConstructorCall(testCase, assignment);
+                        stm = parseConstructorCall(testCase, assignment);
                         if (stm != null) {
                             addVariableStatement(testCase, stm, stmType.getSimpleName());
                         }
                     } else if (assignment instanceof CtInvocation) {
-                        Statement stm = parseMethodStatement(testCase, (CtInvocation<?>) assignment);
+                        stm = parseMethodStatement(testCase, (CtInvocation<?>) assignment);
                         if (stm != null) {
                             addVariableStatement(testCase, stm, stmType.getSimpleName());
                         }
                     } else if (assignment instanceof CtNewArray) {
-                        Statement stm = parseArrayStatement(testCase, (CtNewArray<?>) assignment);
+                        stm = parseArrayStatement(testCase, (CtNewArray<?>) assignment);
                         if (stm != null) {
                             addVariableStatement(testCase, stm, stmType.getSimpleName());
                         }
                     } else if(assignment instanceof CtFieldRead){
-                        Statement stm = parseFieldStatement(testCase, (CtFieldRead<?>) assignment);
+                        stm = parseFieldStatement(testCase, (CtFieldRead<?>) assignment);
                         if (stm != null) {
                             addVariableStatement(testCase, stm, stmType.getSimpleName());
                         }
@@ -171,17 +176,8 @@ public class Parser {
     }
 
     private PrimitiveStatement<?> parsePrimitiveType(TestCase testCase, CtExpression<?> assignment) {
-        return parsePrimitiveType(testCase, assignment, null);
-    }
-
-    private PrimitiveStatement<?> parsePrimitiveType(TestCase testCase, CtExpression<?> assignment, Class<?> actualClass) {
         Object value = ((CtLiteral<?>) assignment).getValue();
-        if (value == null) {
-            if(actualClass != null)
-                return new NullStatement(testCase, actualClass);
-            else
-                LoggingUtils.getEvoLogger().info("IT HAS NOT BEEN SUPPORTED YET: " + assignment);
-        } else if (value instanceof String)
+        if (value instanceof String)
             return new StringPrimitiveStatement(testCase, (String) value);
         else if (Integer.class.isInstance(value))
             return new IntPrimitiveStatement(testCase, (Integer) value);
@@ -198,6 +194,21 @@ public class Parser {
 
         LoggingUtils.getEvoLogger().info("IT HAS NOT BEEN SUPPORTED YET: " + assignment);
 
+        return null;
+    }
+
+    private PrimitiveStatement<?> parseNullStatement(TestCase testCase, CtTypeReference<?> type) {
+        for (Statement statement : oldTestCase) {
+            if (statement instanceof NullStatement) {
+                NullStatement ctStatement = (NullStatement) statement;
+                String simpleClassName = ((Class) ctStatement.getReturnType()).getSimpleName();
+                String qualifiedName = type.getQualifiedName();
+
+                if (ctStatement.getReturnType().getTypeName().equals(type.getQualifiedName()) || simpleClassName.equals(qualifiedName)) {
+                    return ctStatement;
+                }
+            }
+        }
         return null;
     }
 
