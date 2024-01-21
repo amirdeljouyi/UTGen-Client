@@ -46,40 +46,27 @@ public class Parser {
                     CtLocalVariableReference<?> reference = stmType.getReference();
                     CtExpression<?> assignment = stmType.getAssignment();
                     LoggingUtils.getEvoLogger().info(assignment.getClass().toString());
-                    Statement stm;
+                    Statement stm = null;
+
                     if (assignment instanceof CtLiteral) {
                         if(((CtLiteral<?>) assignment).getValue() == null)
                             stm = parseNullStatement(testCase, reference.getType());
                         else
                             stm = parsePrimitiveType(testCase, assignment);
-                        if (stm != null) {
-                            addVariableStatement(testCase, stm, stmType.getSimpleName());
-                        }
                     } else if (assignment instanceof CtUnaryOperator) {
                         stm = parseUnaryOperator(testCase, assignment, reference);
-                        if (stm != null) {
-                            addVariableStatement(testCase, stm, stmType.getSimpleName());
-                        }
                     } else if (assignment instanceof CtConstructorCall) {
                         stm = parseConstructorCall(testCase, assignment);
-                        if (stm != null) {
-                            addVariableStatement(testCase, stm, stmType.getSimpleName());
-                        }
                     } else if (assignment instanceof CtInvocation) {
                         stm = parseMethodStatement(testCase, (CtInvocation<?>) assignment);
-                        if (stm != null) {
-                            addVariableStatement(testCase, stm, stmType.getSimpleName());
-                        }
                     } else if (assignment instanceof CtNewArray) {
                         stm = parseArrayStatement(testCase, (CtNewArray<?>) assignment);
-                        if (stm != null) {
-                            addVariableStatement(testCase, stm, stmType.getSimpleName());
-                        }
                     } else if(assignment instanceof CtFieldRead){
                         stm = parseFieldStatement(testCase, (CtFieldRead<?>) assignment);
-                        if (stm != null) {
-                            addVariableStatement(testCase, stm, stmType.getSimpleName());
-                        }
+                    }
+
+                    if (stm != null) {
+                        addVariableStatement(testCase, stm, stmType.getSimpleName());
                     }
                 }
 
