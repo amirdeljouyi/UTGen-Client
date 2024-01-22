@@ -17,18 +17,18 @@ public class Refinement {
 
     ConstantInliner inliner = new ConstantInliner();
 
-    public Refinement(TestSuiteChromosome testSuite){
+    public Refinement(TestSuiteChromosome testSuite) {
         this.testSuite = testSuite;
     }
 
-    public void refine(){
+    public void refine() {
         ArrayList<TestCase> improvedTests = new ArrayList<>();
 
-        for(TestChromosome test: this.testSuite.getTestChromosomes()){
+        for (TestChromosome test : this.testSuite.getTestChromosomes()) {
 
             TestCase testCase = test.getTestCase();
             testCase.toCode();
-            for(int i=0; i<testCase.size(); i++) {
+            for (int i = 0; i < testCase.size(); i++) {
                 Statement statement = testCase.getStatement(i);
                 LoggingUtils.getEvoLogger().info("statement is: " + statement + " type is: " + statement.getClass() + " return type " + statement.getReturnType());
                 LoggingUtils.getEvoLogger().info("statement code is: " + statement.getCode());
@@ -37,18 +37,20 @@ public class Refinement {
             String oldTestData = testCase.toCode();
             LoggingUtils.getEvoLogger().info("test data is: " + oldTestData);
             String improveTestData = this.llm.improveTestData(oldTestData);
-            LoggingUtils.getEvoLogger().info("Improved test data is: " + improveTestData);
-            Parser parser = new Parser(testCase);
-            TestCase improvedTestCase = parser.parseTestSnippet(improveTestData);
+            if (improveTestData != null) {
+                LoggingUtils.getEvoLogger().info("Improved test data is: " + improveTestData);
+                Parser parser = new Parser(testCase);
+                TestCase improvedTestCase = parser.parseTestSnippet(improveTestData);
 
-            if(!improvedTestCase.isEmpty()) {
-                TestChromosome improvedTestChromosome = new TestChromosome();
-                improvedTestChromosome.setTestCase(improvedTestCase);
-                improvedTests.add(improvedTestCase);
+                if (!improvedTestCase.isEmpty()) {
+                    TestChromosome improvedTestChromosome = new TestChromosome();
+                    improvedTestChromosome.setTestCase(improvedTestCase);
+                    improvedTests.add(improvedTestCase);
+                }
             }
         }
 
-        for(TestCase test: improvedTests) {
+        for (TestCase test : improvedTests) {
             this.testSuite.addTest(test);
         }
 
@@ -57,15 +59,15 @@ public class Refinement {
         LoggingUtils.getEvoLogger().info("* test suite is" + ClientProcess.getPrettyPrintIdentifier() + testSuite);
     }
 
-    private String appendLines(ArrayList<String> lines){
-        if(lines.size() == 0)
+    private String appendLines(ArrayList<String> lines) {
+        if (lines.size() == 0)
             return null;
         StringBuilder result = new StringBuilder();
-        for(int i=0;i<lines.size()-1;i++){
+        for (int i = 0; i < lines.size() - 1; i++) {
             result.append(lines.get(i));
             result.append(System.getProperty("line.separator"));
         }
-        result.append(lines.get(lines.size()-1));
+        result.append(lines.get(lines.size() - 1));
         return result.toString();
     }
 }

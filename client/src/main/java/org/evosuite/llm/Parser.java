@@ -178,6 +178,8 @@ public class Parser {
             return new LongPrimitiveStatement(testCase, (Long) value);
         else if (value instanceof Boolean)
             return new BooleanPrimitiveStatement(testCase, (Boolean) value);
+        else if (value instanceof Character)
+            return new CharPrimitiveStatement(testCase, (Character) value);
 
         LoggingUtils.getEvoLogger().info("IT HAS NOT BEEN SUPPORTED YET: " + assignment);
 
