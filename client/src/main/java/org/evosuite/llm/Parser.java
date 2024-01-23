@@ -180,6 +180,8 @@ public class Parser {
             return new BooleanPrimitiveStatement(testCase, (Boolean) value);
         else if (value instanceof Character)
             return new CharPrimitiveStatement(testCase, (Character) value);
+        else if (value instanceof char[])
+            return new CharPrimitiveStatement(testCase, ((char[]) value)[0]);
 
         LoggingUtils.getEvoLogger().info("IT HAS NOT BEEN SUPPORTED YET: " + assignment);
 
@@ -388,12 +390,15 @@ public class Parser {
 //                        LoggingUtils.getEvoLogger().info("Num of Parameters is: " + ctStatement.getParameterReferences().size());
 //                        LoggingUtils.getEvoLogger().info("invocation args: " + invocation.getArguments().size());
                         if (ctStatement.getParameterReferences().size() == invocation.getArguments().size()) {
+                            if(!statementsIndex.containsKey(callee.getStPosition()))
+                                continue;
+
                             int index = statementsIndex.get(callee.getStPosition());
                             if (testCase.size() < index)
                                 continue;
 
                             Statement sourceStatement = testCase.getStatement(index);
-                            LoggingUtils.getEvoLogger().info("source statement: " + sourceStatement + " callee: " + callee);
+                            LoggingUtils.getEvoLogger().info("source statement: " + sourceStatement + " callee: " + callee + "index is: " + index);
                             if (sourceStatement.getReturnType().equals(callee.getType())) {
                                 potentialStatements.add(ctStatement);
                             }
@@ -447,7 +452,8 @@ public class Parser {
                 ArrayStatement ctStatement = (ArrayStatement) statement;
                 List<Integer> lengths = ctStatement.getLengths();
 
-                LoggingUtils.getEvoLogger().info("Dimension: " + newArray.getDimensionExpressions().toString() + " Ct is: " + ctStatement + " Array: " + newArray);
+                LoggingUtils.getEvoLogger().info("Dimension: " + newArray.getDimensionExpressions().toString() + " Ct is: " + ctStatement.getCode() + " isAssignment: " + ctStatement.isAssignmentStatement()  + " Array: " + newArray);
+                LoggingUtils.getEvoLogger().info("lengths: " +  lengths);
 //                int size = ctStatement.size();
                 // also we should check types
 
