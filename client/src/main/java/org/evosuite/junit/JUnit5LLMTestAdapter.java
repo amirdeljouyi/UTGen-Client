@@ -23,6 +23,7 @@ package org.evosuite.junit;
 import org.evosuite.Properties;
 import org.evosuite.junit.writer.TestSuiteWriterUtils;
 import org.evosuite.llm.LLMHandler;
+import org.evosuite.llm.LLMValidator;
 import org.evosuite.runtime.vnet.NonFunctionalRequirementExtension;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestCodeVisitor;
@@ -62,7 +63,7 @@ public class JUnit5LLMTestAdapter implements UnitTestAdapter {
         return org.junit.jupiter.api.AfterEach.class;
     }
 
-    private final LLMHandler llm = new LLMHandler();
+    private final LLMValidator llm = new LLMValidator();
     private int numberCalled = 0;
 
     private String getJUnitTestShortName() {
@@ -160,9 +161,7 @@ public class JUnit5LLMTestAdapter implements UnitTestAdapter {
         numberCalled++;
 
         if (toImprove) {
-            String improvedCode = llm.improveUnderstandability(code);
-            if (improvedCode != null)
-                return improvedCode;
+            return llm.improveUnderstandability(code);
         }
         return code;
     }
@@ -186,9 +185,7 @@ public class JUnit5LLMTestAdapter implements UnitTestAdapter {
         String code = visitor.getCode();
 
         if (toImprove) {
-            String improvedCode = llm.improveUnderstandability(code);
-            if (improvedCode != null)
-                return improvedCode;
+            return llm.improveUnderstandability(code);
         }
         return code;
     }
@@ -200,4 +197,6 @@ public class JUnit5LLMTestAdapter implements UnitTestAdapter {
         builder.append(TestSuiteWriterUtils.METHOD_SPACE);
         builder.append("public ").append(NonFunctionalRequirementExtension.class.getName()).append(" nfr = new ").append(NonFunctionalRequirementExtension.class.getName()).append("();\n\n");
     }
+
+
 }
