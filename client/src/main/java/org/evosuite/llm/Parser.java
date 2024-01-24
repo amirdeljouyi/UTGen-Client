@@ -45,11 +45,15 @@ public class Parser {
                     CtLocalVariable<?> stmType = (CtLocalVariable<?>) statement;
                     CtLocalVariableReference<?> reference = stmType.getReference();
                     CtExpression<?> assignment = stmType.getAssignment();
+
+                    if (assignment == null)
+                        continue;
+
                     LoggingUtils.getEvoLogger().info(assignment.getClass().toString());
                     Statement stm = null;
 
                     if (assignment instanceof CtLiteral) {
-                        if(((CtLiteral<?>) assignment).getValue() == null)
+                        if (((CtLiteral<?>) assignment).getValue() == null)
                             stm = parseNullStatement(testCase, reference.getType());
                         else
                             stm = parsePrimitiveType(testCase, assignment);
@@ -61,16 +65,16 @@ public class Parser {
                         stm = parseMethodStatement(testCase, (CtInvocation<?>) assignment);
                     } else if (assignment instanceof CtNewArray) {
                         stm = parseArrayStatement(testCase, (CtNewArray<?>) assignment);
-                    } else if(assignment instanceof CtFieldRead){
+                    } else if (assignment instanceof CtFieldRead) {
                         stm = parseFieldStatement(testCase, (CtFieldRead<?>) assignment);
+                    } else {
+                        LoggingUtils.getEvoLogger().info("IT HAS NOT BEEN SUPPORTED YET: " + assignment);
                     }
 
                     if (stm != null) {
                         addVariableStatement(testCase, stm, stmType.getSimpleName());
                     }
-                }
-
-                if (statement instanceof CtInvocation) {
+                } else if (statement instanceof CtInvocation) {
                     CtInvocation<?> stmType = (CtInvocation<?>) statement;
                     Statement stm = parseMethodStatement(testCase, stmType);
                     if (stm != null) {
@@ -139,13 +143,13 @@ public class Parser {
     private ConstructorStatement matches(CtConstructorCall<?> constructorCall) {
         for (Statement statement : oldTestCase) {
             if (statement instanceof ConstructorStatement) {
-                ConstructorStatement ctStatement = (ConstructorStatement) statement;
-//                LoggingUtils.getEvoLogger().info("getDeclaringClassName is: " + ctStatement.getDeclaringClassName());
+                ConstructorStatement evStatement = (ConstructorStatement) statement;
+//                LoggingUtils.getEvoLogger().info("getDeclaringClassName is: " + evStatement.getDeclaringClassName());
                 // also we should check types
-                if (ctStatement.getDeclaringClassName().equals(constructorCall.getType().getQualifiedName()) || ctStatement.getSimpleName().equals(constructorCall.getType().getQualifiedName())) {
-                    if (ctStatement.getNumParameters() == constructorCall.getArguments().size())
-//                        ctStatement.getParameterReferences().get(0).
-                        return ctStatement;
+                if (evStatement.getDeclaringClassName().equals(constructorCall.getType().getQualifiedName()) || evStatement.getSimpleName().equals(constructorCall.getType().getQualifiedName())) {
+                    if (evStatement.getNumParameters() == constructorCall.getArguments().size())
+//                        evStatement.getParameterReferences().get(0).
+                        return evStatement;
                 }
             }
         }
@@ -191,12 +195,12 @@ public class Parser {
     private PrimitiveStatement<?> parseNullStatement(TestCase testCase, CtTypeReference<?> type) {
         for (Statement statement : oldTestCase) {
             if (statement instanceof NullStatement) {
-                NullStatement ctStatement = (NullStatement) statement;
-                String simpleClassName = ((Class) ctStatement.getReturnType()).getSimpleName();
+                NullStatement evStatement = (NullStatement) statement;
+                String simpleClassName = ((Class) evStatement.getReturnType()).getSimpleName();
                 String qualifiedName = type.getQualifiedName();
 
-                if (ctStatement.getReturnType().getTypeName().equals(type.getQualifiedName()) || simpleClassName.equals(qualifiedName)) {
-                    return ctStatement;
+                if (evStatement.getReturnType().getTypeName().equals(type.getQualifiedName()) || simpleClassName.equals(qualifiedName)) {
+                    return evStatement;
                 }
             }
         }
@@ -312,9 +316,10 @@ public class Parser {
             if (statement instanceof FunctionalMockStatement) {
                 FunctionalMockStatement ctStatement = (FunctionalMockStatement) statement;
                 LoggingUtils.getEvoLogger().info("target name is: " + ctStatement.getTargetClass().getSimpleName() + " argument is: " + invocation.getArguments().get(0).toString());
+                FunctionalMockStatement evStatement = (FunctionalMockStatement) statement;
                 String className = invocation.getArguments().get(0).toString().replace(".class", "");
-                if (ctStatement.getTargetClass().getSimpleName().equals(className)) {
-                    return ctStatement;
+                if (evStatement.getTargetClass().getSimpleName().equals(className)) {
+                    return evStatement;
                 }
             }
         }
@@ -327,20 +332,20 @@ public class Parser {
 
         for (Statement statement : oldTestCase) {
             if (statement instanceof MethodStatement) {
-                MethodStatement ctStatement = (MethodStatement) statement;
-                VariableReference callee = ctStatement.getCallee();
+                MethodStatement evStatement = (MethodStatement) statement;
+                VariableReference callee = evStatement.getCallee();
                 // also we should check types
 
-//                LoggingUtils.getEvoLogger().info("isStatic: " + ctStatement.isStatic() + " callee: " + callee);
-                if (!ctStatement.isStatic()) {
+//                LoggingUtils.getEvoLogger().info("isStatic: " + evStatement.isStatic() + " callee: " + callee);
+                if (!evStatement.isStatic()) {
                     continue;
                 }
 
                 // Check Static Methods
                 if (callee == null) {
-                    if (ctStatement.getMethodName().equals(method.getSimpleName())) {
-                        if (ctStatement.getParameterReferences().size() == invocation.getArguments().size()) {
-                            return ctStatement;
+                    if (evStatement.getMethodName().equals(method.getSimpleName())) {
+                        if (evStatement.getParameterReferences().size() == invocation.getArguments().size()) {
+                            return evStatement;
                         }
                     }
                 }
@@ -366,31 +371,25 @@ public class Parser {
 
         for (Statement statement : oldTestCase) {
             if (statement instanceof MethodStatement) {
-                MethodStatement ctStatement = (MethodStatement) statement;
-                VariableReference callee = ctStatement.getCallee();
+                MethodStatement evStatement = (MethodStatement) statement;
+                VariableReference callee = evStatement.getCallee();
                 // also we should check types
 
                 if (callee == null) {
                     continue;
                 }
 
-                String qualifiedName = target.getType().getQualifiedName();
-                String calleeSimpleClassName;
-                if(callee.getType() instanceof ParameterizedTypeImpl){
-                    calleeSimpleClassName = ((Class) ((ParameterizedTypeImpl) callee.getType()).getRawType()).getSimpleName();
-                } else {
-                    calleeSimpleClassName = ((Class) callee.getType()).getSimpleName();
-                }
-                if (callee.getType().getTypeName().equals(qualifiedName) || calleeSimpleClassName.equals(qualifiedName)) {
-                    if (ctStatement.getMethodName().equals(method.getSimpleName())) {
+
+                if (typeChecker(callee.getType(), target.getType())) {
+                    if (evStatement.getMethodName().equals(method.getSimpleName())) {
 //                        LoggingUtils.getEvoLogger().info("Callee: " + ((Class) callee.getType()).getSimpleName());
 //                        LoggingUtils.getEvoLogger().info("Target: " + target.getType().getQualifiedName());
-//                        LoggingUtils.getEvoLogger().info("Method name is: " + ctStatement.getMethodName());
+//                        LoggingUtils.getEvoLogger().info("Method name is: " + evStatement.getMethodName());
 //                        LoggingUtils.getEvoLogger().info("invocation is: " + invocation.getExecutable().getSimpleName());
-//                        LoggingUtils.getEvoLogger().info("Num of Parameters is: " + ctStatement.getParameterReferences().size());
+//                        LoggingUtils.getEvoLogger().info("Num of Parameters is: " + evStatement.getParameterReferences().size());
 //                        LoggingUtils.getEvoLogger().info("invocation args: " + invocation.getArguments().size());
-                        if (ctStatement.getParameterReferences().size() == invocation.getArguments().size()) {
-                            if(!statementsIndex.containsKey(callee.getStPosition()))
+                        if (evStatement.getParameterReferences().size() == invocation.getArguments().size()) {
+                            if (!statementsIndex.containsKey(callee.getStPosition()))
                                 continue;
 
                             int index = statementsIndex.get(callee.getStPosition());
@@ -400,7 +399,7 @@ public class Parser {
                             Statement sourceStatement = testCase.getStatement(index);
                             LoggingUtils.getEvoLogger().info("source statement: " + sourceStatement + " callee: " + callee + "index is: " + index);
                             if (sourceStatement.getReturnType().equals(callee.getType())) {
-                                potentialStatements.add(ctStatement);
+                                potentialStatements.add(evStatement);
                             }
                         }
                     }
@@ -426,22 +425,24 @@ public class Parser {
     }
 
     private FieldStatement parseFieldStatement(TestCase testCase, CtFieldRead<?> field) {
-        FieldStatement evoStm = null;
+        if (field.getTarget() == null)
+            return null;
+
         String fieldType = field.getTarget().toString();
         LoggingUtils.getEvoLogger().info("Field is: " + field + " is " + field.getTarget());
 
         for (Statement statement : oldTestCase) {
             if (statement instanceof FieldStatement) {
-                FieldStatement ctStatement = (FieldStatement) statement;
-                String ctTypeName = ctStatement.getField().getField().getType().getSimpleName();
-                LoggingUtils.getEvoLogger().info("CtField is: " + ctStatement.getField().getField() + " " + ctStatement.getField().getField().getType().getSimpleName() + " " + ctStatement.getField().getName());
-                if(ctTypeName.equals(fieldType)){
-                    return ctStatement;
+                FieldStatement evStatement = (FieldStatement) statement;
+                String ctTypeName = evStatement.getField().getField().getType().getSimpleName();
+                LoggingUtils.getEvoLogger().info("CtField is: " + evStatement.getField().getField() + " " + evStatement.getField().getField().getType().getSimpleName() + " " + evStatement.getField().getName());
+                if (ctTypeName.equals(fieldType)) {
+                    return evStatement;
                 }
             }
         }
 
-        return evoStm;
+        return null;
     }
 
     private ArrayStatement parseArrayStatement(TestCase testCase, CtNewArray<?> newArray) {
