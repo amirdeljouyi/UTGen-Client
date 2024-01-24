@@ -16,6 +16,7 @@ import spoon.reflect.reference.CtLocalVariableReference;
 import spoon.reflect.reference.CtTypeReference;
 import spoon.support.reflect.code.CtVariableReadImpl;
 
+import java.lang.reflect.Type;
 import java.util.*;
 
 public class Parser {
@@ -80,6 +81,11 @@ public class Parser {
                     if (stm != null) {
                         addStatement(testCase, stm);
 //                        LoggingUtils.getEvoLogger().info(stm.toString());
+                    }
+                } else if (statement instanceof CtAssignment) {
+                    Statement stm = parseAssignmentStatement(testCase, (CtAssignment<?, ?>) statement);
+                    if (stm != null) {
+                        addStatement(testCase, stm);
                     }
                 }
             }
@@ -445,23 +451,69 @@ public class Parser {
     }
 
     private ArrayStatement parseArrayStatement(TestCase testCase, CtNewArray<?> newArray) {
-        // TODO: Now Only 1 dimension array is supported
-        ArrayStatement evoStm = null;
         for (Statement statement : oldTestCase) {
             if (statement instanceof ArrayStatement) {
-                ArrayStatement ctStatement = (ArrayStatement) statement;
-                List<Integer> lengths = ctStatement.getLengths();
+                ArrayStatement evStatement = (ArrayStatement) statement;
+                List<Integer> ctLengths = evStatement.getLengths();
+                List<CtExpression<Integer>> spLengths = newArray.getDimensionExpressions();
+                List<CtExpression<?>> spElements = newArray.getElements();
+                boolean isAssignment = false;
 
-                LoggingUtils.getEvoLogger().info("Dimension: " + newArray.getDimensionExpressions().toString() + " Ct is: " + ctStatement.getCode() + " isAssignment: " + ctStatement.isAssignmentStatement()  + " Array: " + newArray);
-                LoggingUtils.getEvoLogger().info("lengths: " +  lengths);
-//                int size = ctStatement.size();
-                // also we should check types
+                LoggingUtils.getEvoLogger().info("Dimension: " + newArray.getDimensionExpressions().toString() + " Ct is: " + evStatement.getCode() + " isAssignment: " + evStatement.isAssignmentStatement() + " Array: " + newArray + " Elements: " + spElements);
 
+                LoggingUtils.getEvoLogger().info("lengths: " + ctLengths + " " + spLengths);
 
+                if (!spElements.isEmpty()) {
+                    isAssignment = true;
+                    // TODO: Supports assignment array like
+                } else {
+                    if (spLengths.size() == ctLengths.size()) {
+                        LoggingUtils.getEvoLogger().info("Their type are: " + evStatement.getReturnType() + " " + newArray.getType());
+
+                        if (typeChecker(evStatement.getReturnType(), newArray.getType())) {
+                            return evStatement;
+                        }
+                    }
+                }
             }
         }
 
-        return evoStm;
+        return null;
+    }
+
+    private AssignmentStatement parseAssignmentStatement(TestCase testCase, CtAssignment<?, ?> assignment) {
+        // TODO: IT hasn't been supported yet
+
+        ArrayList<AssignmentStatement> potentialStatements = new ArrayList<>();
+        CtExpression<?> assigned = assignment.getAssigned();
+        CtExpression<?> ctAssignment = assignment.getAssignment();
+        LoggingUtils.getEvoLogger().info("Assigned : " + assigned + " Assignment:" + ctAssignment + " Ct is: " + assignment);
+
+        if (testCase.isEmpty()) {
+            return null;
+        }
+
+        for (Statement statement : oldTestCase) {
+            if (statement instanceof AssignmentStatement) {
+                AssignmentStatement assignStm = (AssignmentStatement) statement;
+
+                LoggingUtils.getEvoLogger().info("AssignmentStatement: " + assignStm.getCode() + "Value is: " + assignStm.getValue());
+            }
+        }
+
+        return null;
+    }
+
+    private boolean typeChecker(Type type, CtTypeReference<?> ctType) {
+        String qualifiedName = ctType.getQualifiedName();
+        String simpleClassName;
+        if (type instanceof ParameterizedTypeImpl) {
+            simpleClassName = ((Class) ((ParameterizedTypeImpl) type).getRawType()).getSimpleName();
+        } else {
+            simpleClassName = ((Class) type).getSimpleName();
+        }
+
+        return type.getTypeName().equals(qualifiedName) || simpleClassName.equals(qualifiedName);
     }
 
     private VariableReference addStatement(TestCase testCase, Statement statement) {
@@ -473,7 +525,7 @@ public class Parser {
     }
 
     private VariableReference addVariableStatement(TestCase testCase, Statement statement, String name) {
-        if(!statement.getTestCase().equals(testCase))
+        if (!statement.getTestCase().equals(testCase))
             statementsIndex.put(statement.getPosition(), position);
 
         VariableReference variableReference = testCase.addStatement(statement.clone(testCase));
