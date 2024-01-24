@@ -22,7 +22,7 @@ public class LLMValidator {
         String dummyClass = "class DummyClass { public static void main (){" + improvedCode + " }}";
         try {
             CtClass<?> ctClass = Launcher.parseClass(dummyClass);
-            LoggingUtils.getEvoLogger().info("** It was a parseble test case! ");
+            LoggingUtils.getEvoLogger().info("** It was a parseable test case! ");
             return improvedCode;
         } catch (SpoonException e) {
             return improveUnderstandability(code, i + 1);
@@ -48,7 +48,7 @@ public class LLMValidator {
         String dummyClass = "class DummyClass { public static void main (){" + improvedCode + " }}";
         try {
             CtClass<?> ctClass = Launcher.parseClass(dummyClass);
-            LoggingUtils.getEvoLogger().info("** It was a parseble test case! ");
+            LoggingUtils.getEvoLogger().info("** It was a parseable test case! ");
             return improvedCode;
         } catch (SpoonException e) {
             return improveTestData(code, i + 1);

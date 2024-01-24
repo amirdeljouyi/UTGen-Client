@@ -314,9 +314,8 @@ public class Parser {
     private FunctionalMockStatement parseMockMethod(CtInvocation<?> invocation) {
         for (Statement statement : oldTestCase) {
             if (statement instanceof FunctionalMockStatement) {
-                FunctionalMockStatement ctStatement = (FunctionalMockStatement) statement;
-                LoggingUtils.getEvoLogger().info("target name is: " + ctStatement.getTargetClass().getSimpleName() + " argument is: " + invocation.getArguments().get(0).toString());
                 FunctionalMockStatement evStatement = (FunctionalMockStatement) statement;
+                LoggingUtils.getEvoLogger().info("target name is: " + evStatement.getTargetClass().getSimpleName() + " argument is: " + invocation.getArguments().get(0).toString());
                 String className = invocation.getArguments().get(0).toString().replace(".class", "");
                 if (evStatement.getTargetClass().getSimpleName().equals(className)) {
                     return evStatement;
