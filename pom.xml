@@ -449,6 +449,7 @@
             <dependency>
                 <groupId>com.squareup.okhttp3</groupId>
                 <artifactId>logging-interceptor</artifactId>
+                <version>4.12.0</version>
             </dependency>
             <dependency>
                 <groupId>com.apollographql.apollo3</groupId>
@@ -459,6 +460,11 @@
                 <groupId>com.apollographql.apollo3</groupId>
                 <artifactId>apollo-runtime-jvm</artifactId>
                 <version>3.8.2</version>
+            </dependency>
+            <dependency>
+                <groupId>fr.inria.gforge.spoon</groupId>
+                <artifactId>spoon-core</artifactId>
+                <version>8.4.0</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -620,6 +626,7 @@
                     <source>${compiler.source}</source>
                     <target>${compiler.target}</target>
                     <encoding>${project.build.sourceEncoding}</encoding>
+<!--                    <compilerArgument>-proc:none</compilerArgument>-->
                 </configuration>
             </plugin>
             <plugin>
@@ -830,6 +837,10 @@
                                     <relocation>
                                         <pattern>org.objenesis</pattern>
                                         <shadedPattern>org.evosuite.shaded.org.objenesis</shadedPattern>
+                                    </relocation>
+                                    <relocation>
+                                        <pattern>fr.inria.gforge.spoon</pattern>
+                                        <shadedPattern>org.evosuite.shaded.fr.inria.gforge.spoon</shadedPattern>
                                     </relocation>
                                     <!--<relocation>-->
                                         <!--<pattern>org.slf4j</pattern>-->
