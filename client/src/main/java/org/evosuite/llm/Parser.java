@@ -16,6 +16,7 @@ import spoon.reflect.reference.CtLocalVariableReference;
 import spoon.reflect.reference.CtTypeReference;
 import spoon.support.reflect.code.CtVariableReadImpl;
 
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
 
@@ -511,9 +512,9 @@ public class Parser {
     private boolean typeChecker(Type type, CtTypeReference<?> ctType) {
         String qualifiedName = ctType.getQualifiedName();
         String simpleClassName;
-        if (type instanceof ParameterizedTypeImpl) {
-            simpleClassName = ((Class) ((ParameterizedTypeImpl) type).getRawType()).getSimpleName();
-        } else {
+        if (type instanceof ParameterizedType) {
+            simpleClassName = ((Class) ((ParameterizedType) type).getRawType()).getSimpleName();
+        }  else {
             simpleClassName = ((Class) type).getSimpleName();
         }
 
