@@ -517,21 +517,33 @@ public class Parser {
     }
 
     private VariableReference addStatement(TestCase testCase, Statement statement) {
-        VariableReference variableReference = testCase.addStatement(statement.clone(testCase));
-//        VariableReference variableReference = testCase.addStatement(statement, position);
-//        variableReferences.put(position, variableReference);
-        position++;
+        VariableReference variableReference = null;
+        try {
+            variableReference = testCase.addStatement(statement.clone(testCase));
+            //        VariableReference variableReference = testCase.addStatement(statement, position);
+            //        variableReferences.put(position, variableReference);
+            position++;
+        } catch (Exception e) {
+            LoggingUtils.getEvoLogger().info("TestCase Could not be added: " + statement);
+        }
         return variableReference;
     }
 
     private VariableReference addVariableStatement(TestCase testCase, Statement statement, String name) {
-        if (!statement.getTestCase().equals(testCase))
-            statementsIndex.put(statement.getPosition(), position);
+        VariableReference variableReference = null;
+        try {
+            if (!statement.getTestCase().equals(testCase))
+                statementsIndex.put(statement.getPosition(), position);
 
-        VariableReference variableReference = testCase.addStatement(statement.clone(testCase));
+
+            variableReference = testCase.addStatement(statement.clone(testCase));
 //        VariableReference variableReference = testCase.addStatement(statement, position);
-        variableReferences.put(name, variableReference);
-        position++;
+            variableReferences.put(name, variableReference);
+            position++;
+
+        } catch (Exception e) {
+            LoggingUtils.getEvoLogger().info("TestCase Could not be added: " + statement);
+        }
         return variableReference;
     }
 }
