@@ -7,6 +7,7 @@ import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.LoggingUtils;
+import spoon.reflect.declaration.CtClass;
 
 import java.util.ArrayList;
 
@@ -36,11 +37,13 @@ public class Refinement {
 
             String oldTestData = testCase.toCode();
             LoggingUtils.getEvoLogger().info("test data is: " + oldTestData);
-            String improveTestData = this.llm.improveTestData(oldTestData);
-            if (improveTestData != null) {
-                LoggingUtils.getEvoLogger().info("Improved test data is: " + improveTestData);
+            LLMValidator llmValidator = new LLMValidator();
+            CtClass<?> parsedImprovedTestData = llmValidator.improveTestData(oldTestData);
+
+            if (parsedImprovedTestData != null) {
+                LoggingUtils.getEvoLogger().info("Improved test data is: " + parsedImprovedTestData);
                 Parser parser = new Parser(testCase);
-                TestCase improvedTestCase = parser.parseTestSnippet(improveTestData);
+                TestCase improvedTestCase = parser.parseTestSnippet(parsedImprovedTestData);
 
                 if (!improvedTestCase.isEmpty()) {
                     TestChromosome improvedTestChromosome = new TestChromosome();

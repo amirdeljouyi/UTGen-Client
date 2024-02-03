@@ -32,10 +32,7 @@ public class Parser {
         this.oldTestCase = oldTestCase.clone();
     }
 
-    public TestCase parseTestSnippet(String improvedTest) {
-        String dummyClass = "class DummyClass { public static void main (){" + improvedTest + " }}";
-        CtClass<?> ctClass = Launcher.parseClass(dummyClass);
-
+    public TestCase parseTestSnippet(CtClass<?> ctClass) {
         TestCase testCase = new DefaultTestCase();
         for (CtMethod<?> ctMethod : ctClass.getMethods()) {
             CtBlock<?> body = ctMethod.getBody();
@@ -429,7 +426,7 @@ public class Parser {
 
         int number = calleeStatements.get(id);
 
-        if(number >= potentialStatements.size())
+        if (number >= potentialStatements.size())
             number = potentialStatements.size() - 1;
         else
             calleeStatements.put(id, number + 1);

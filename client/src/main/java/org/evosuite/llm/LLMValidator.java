@@ -34,11 +34,11 @@ public class LLMValidator {
     }
 
 
-    private String improveTestData(String code, int i) {
+    private CtClass<?> improveTestData(String code, int i) {
         String improvedCode = llm.improveTestData(code);
 
         if (i == 5) {
-            return code;
+            return null;
         }
 
         if (improvedCode == null) {
@@ -49,13 +49,13 @@ public class LLMValidator {
         try {
             CtClass<?> ctClass = Launcher.parseClass(dummyClass);
             LoggingUtils.getEvoLogger().info("** It was a parseable test case! ");
-            return improvedCode;
+            return ctClass;
         } catch (SpoonException e) {
             return improveTestData(code, i + 1);
         }
     }
 
-    public String improveTestData(String code) {
+    public CtClass<?> improveTestData(String code) {
         return improveTestData(code, 0);
     }
 }
