@@ -282,7 +282,10 @@ public class Parser {
     private VariableReference parseArgStatement(TestCase testCase, CtExpression<?> expression) {
         Statement stm;
         if (expression instanceof CtLiteral) {
-            stm = parsePrimitiveType(testCase, expression);
+            if (((CtLiteral<?>) expression).getValue() == null)
+                stm = parseNullStatement(testCase, expression.getType());
+            else
+                stm = parsePrimitiveType(testCase, expression);
             if (stm != null)
                 return addStatement(testCase, stm);
         } else if (expression instanceof CtConstructorCall) {
@@ -398,7 +401,7 @@ public class Parser {
                                 continue;
 
                             int index = statementsIndex.get(callee.getStPosition());
-                            if (testCase.size() < index)
+                            if (testCase.size() <= index)
                                 continue;
 
                             Statement sourceStatement = testCase.getStatement(index);
@@ -425,7 +428,11 @@ public class Parser {
         }
 
         int number = calleeStatements.get(id);
-        calleeStatements.put(id, number + 1);
+
+        if(number >= potentialStatements.size())
+            number = potentialStatements.size() - 1;
+        else
+            calleeStatements.put(id, number + 1);
         return potentialStatements.get(number);
     }
 
