@@ -21,7 +21,7 @@ public class GraphQLClient {
 
     public GraphQLClient(){
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
-                .connectTimeout(5, TimeUnit.MINUTES).readTimeout(5, TimeUnit.MINUTES)
+                .connectTimeout(10, TimeUnit.MINUTES).readTimeout(10, TimeUnit.MINUTES)
                 .build();
 
         ApolloClient.Builder builder = new ApolloClient.Builder()
