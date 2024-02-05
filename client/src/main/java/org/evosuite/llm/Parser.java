@@ -4,9 +4,13 @@ import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.statements.*;
 import org.evosuite.testcase.statements.numeric.*;
+import org.evosuite.testcase.variable.ArrayIndex;
+import org.evosuite.testcase.variable.ArrayReference;
+import org.evosuite.testcase.variable.ConstantValue;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.ParameterizedTypeImpl;
+import org.junit.Test;
 import spoon.Launcher;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtClass;
@@ -294,8 +298,7 @@ public class Parser {
             CtVariableReadImpl<?> ctVariable = (CtVariableReadImpl<?>) expression;
 //            LoggingUtils.getEvoLogger().info("Variable is: " + ctVariable.getVariable());
 //            LoggingUtils.getEvoLogger().info("variable is: " + variable);
-            VariableReference variable = findVariable(ctVariable.getVariable().getSimpleName());
-            return variable;
+            return findVariable(ctVariable.getVariable().getSimpleName());
         }
         return null;
     }
@@ -309,7 +312,6 @@ public class Parser {
             return parseMockMethod(invocation);
         }
 
-        // TODO: Static Method
         MethodStatement staticMethod = parseStaticMethod(testCase, invocation);
         if (staticMethod != null)
             return staticMethod;
@@ -487,26 +489,75 @@ public class Parser {
     }
 
     private AssignmentStatement parseAssignmentStatement(TestCase testCase, CtAssignment<?, ?> assignment) {
-        // TODO: IT hasn't been supported yet
-
         ArrayList<AssignmentStatement> potentialStatements = new ArrayList<>();
         CtExpression<?> assigned = assignment.getAssigned();
         CtExpression<?> ctAssignment = assignment.getAssignment();
-        LoggingUtils.getEvoLogger().info("Assigned : " + assigned + " Assignment:" + ctAssignment + " Ct is: " + assignment);
 
         if (testCase.isEmpty()) {
             return null;
         }
 
+        if(!(assigned instanceof CtArrayWrite)) {
+            return null;
+        }
+
+        CtArrayWrite<?> arrayWrite = (CtArrayWrite<?>) assigned;
+        LoggingUtils.getEvoLogger().info("Assigned : " + assigned + " Assigned Type " + assigned.getClass() + " " + assigned.getType() + " Assignment:" + ctAssignment + " Ct is: " + assignment);
+        LoggingUtils.getEvoLogger().info("target : " + arrayWrite.getTarget() + " " + arrayWrite.getIndexExpression().getClass());
+
+        if(!(arrayWrite.getIndexExpression() instanceof CtLiteral))
+            return null;
+
+        int ctArrayIndex = ((CtLiteral<Integer>) arrayWrite.getIndexExpression()).getValue();
+
+        VariableReference targetArray = findVariable(arrayWrite.getTarget().toString());
+        if(targetArray == null)
+            return null;
+
         for (Statement statement : oldTestCase) {
             if (statement instanceof AssignmentStatement) {
                 AssignmentStatement assignStm = (AssignmentStatement) statement;
+                VariableReference arrayReference = assignStm.getReturnValue();
+//                if(value instanceof ArrayReference) {
+//                    ArrayReference arrayRef = (ArrayReference) value;
+//                    LoggingUtils.getEvoLogger().info("ArrayRef: " + arrayRef.getArrayLength() + " " + arrayRef.getArrayDimensions() + " " + arrayRef.getLengths());
+//                } else
 
-                LoggingUtils.getEvoLogger().info("AssignmentStatement: " + assignStm.getCode() + "Value is: " + assignStm.getValue());
+                if (arrayReference instanceof ArrayIndex){
+                    ArrayIndex arrayIndex = (ArrayIndex) arrayReference;
+                    int arrayStPosition = arrayIndex.getArray().getStPosition();
+                    if (!statementsIndex.containsKey(arrayStPosition))
+                        continue;
+
+                    int arrayIndexPosition = statementsIndex.get(arrayStPosition);
+                    if(targetArray.getStPosition() == arrayIndexPosition){
+                        potentialStatements.add(assignStm);
+                    }
+                }
             }
         }
 
-        return null;
+        if(potentialStatements.isEmpty())
+            return null;
+
+        if(potentialStatements.size() == 1)
+            return replaceAssignmentStatementValue(testCase, ctAssignment, potentialStatements.get(0));
+
+        for(AssignmentStatement assignStm: potentialStatements){
+            ArrayIndex arrayIndex = (ArrayIndex) assignStm.getReturnValue();
+            if(ctArrayIndex == arrayIndex.getArrayIndex()){
+                return replaceAssignmentStatementValue(testCase, ctAssignment, assignStm);
+            }
+        }
+
+        return potentialStatements.get(0);
+    }
+
+    AssignmentStatement replaceAssignmentStatementValue(TestCase testCase, CtExpression<?> ctAssignment, AssignmentStatement assignStm){
+        VariableReference variableReference = parseArgStatement(testCase, ctAssignment);
+        if (variableReference != null)
+            assignStm.setValue(variableReference);
+        return assignStm;
     }
 
     private boolean typeChecker(Type type, CtTypeReference<?> ctType) {
