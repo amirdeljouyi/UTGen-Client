@@ -22,7 +22,6 @@ package org.evosuite.junit;
 
 import org.evosuite.Properties;
 import org.evosuite.junit.writer.TestSuiteWriterUtils;
-import org.evosuite.llm.LLMHandler;
 import org.evosuite.llm.LLMValidator;
 import org.evosuite.runtime.vnet.NonFunctionalRequirementExtension;
 import org.evosuite.testcase.TestCase;

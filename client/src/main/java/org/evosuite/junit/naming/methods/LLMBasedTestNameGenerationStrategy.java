@@ -19,35 +19,15 @@
  */
 package org.evosuite.junit.naming.methods;
 
-import org.evosuite.Properties;
-import org.evosuite.coverage.FitnessFunctions;
-import org.evosuite.coverage.TestFitnessFactory;
-import org.evosuite.coverage.exception.ExceptionCoverageTestFitness;
-import org.evosuite.coverage.io.input.InputCoverageTestFitness;
-import org.evosuite.coverage.io.input.InputObserver;
-import org.evosuite.coverage.io.output.OutputCoverageTestFitness;
-import org.evosuite.coverage.io.output.OutputObserver;
-import org.evosuite.coverage.method.MethodCoverageTestFitness;
-import org.evosuite.coverage.method.MethodNoExceptionCoverageTestFitness;
-import org.evosuite.llm.LLMHandler;
-import org.evosuite.runtime.mock.EvoSuiteMock;
-import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.TestFitnessFunction;
-import org.evosuite.testcase.execution.ExecutionObserver;
-import org.evosuite.testcase.execution.ExecutionResult;
-import org.evosuite.testcase.execution.TestCaseExecutor;
-import org.evosuite.testcase.statements.ConstructorStatement;
-import org.evosuite.testcase.statements.MethodStatement;
-import org.evosuite.testcase.statements.Statement;
-import org.objectweb.asm.Type;
 
-import java.lang.reflect.Modifier;
+import org.evosuite.llm.LLMValidator;
+import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.execution.ExecutionResult;
+
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
- * @author Gordon Fraser
- * @author Ermira Daka
+ * @author Amirhossein Deljouyi
  */
 public class LLMBasedTestNameGenerationStrategy implements TestNameGenerationStrategy {
 
@@ -55,17 +35,16 @@ public class LLMBasedTestNameGenerationStrategy implements TestNameGenerationStr
 
     private final Map<String, Set<String>> methodCount = new LinkedHashMap<>();
 
-    private CoverageGoalTestNameGenerationStrategy coverageGoalStrategy;
+    private final CoverageGoalTestNameGenerationStrategy coverageGoalStrategy;
 
-    private final LLMHandler llm = new LLMHandler();
-
-    public static final int MAX_SIMILAR_GOALS = 2;
+    private final LLMValidator llm = new LLMValidator();
 
     public static final int MAX_CHARS = 70;
+    public static final int RECURSIVE_LIMIT = 3;
 
     public LLMBasedTestNameGenerationStrategy(List<TestCase> testCases, List<ExecutionResult> results) {
         coverageGoalStrategy = new CoverageGoalTestNameGenerationStrategy(testCases, results);
-        generateNames(testCases);
+        generateDefaultNames(testCases);
     }
 
     /**
@@ -75,63 +54,57 @@ public class LLMBasedTestNameGenerationStrategy implements TestNameGenerationStr
      */
     public LLMBasedTestNameGenerationStrategy(List<TestCase> testCases) {
         coverageGoalStrategy = new CoverageGoalTestNameGenerationStrategy(testCases);
-        generateNames(testCases);
+        generateDefaultNames(testCases);
     }
 
-    /**
-     * Calculate the test names from the current goals
-     *
-     * @param testToGoals
-     */
-    private void setTestNames(Map<TestCase, Set<TestFitnessFunction>> testToGoals) {
-        for (Map.Entry<TestCase, Set<TestFitnessFunction>> entry : testToGoals.entrySet()) {
-            testToName.put(entry.getKey(), getTestName(entry.getKey()));
-        }
+    private String getLLMTestName(TestCase test, String code) {
+        String suggestedTestName = llm.suggestTestName(code);
+        // if the suggested name was null use the default name of EVOSUITE
+        if (suggestedTestName == null)
+            return testToName.get(test);
+
+        return fixAmbiguousTestNames(test, code, suggestedTestName, 0);
     }
 
-    private String getTestName(TestCase test) {
-        String suggestedTestName = llm.suggestTestName(test.toCode());
-        if(suggestedTestName == null)
-            return coverageGoalStrategy.getName(test);
+    private String getDescriptiveLLMTestName(TestCase test, String code) {
+        String suggestedTestName = llm.suggestTestName(code);
+        // if the suggested name was null use the default name of EVOSUITE
+        if (suggestedTestName == null)
+            return testToName.get(test);
+
         return suggestedTestName;
     }
 
 
-    private void generateNames(List<TestCase> testCases) {
-        for (TestCase testCase: testCases) {
-            testToName.put(testCase, getTestName(testCase));
+    private void generateDefaultNames(List<TestCase> testCases) {
+        for (TestCase testCase : testCases) {
+            testToName.put(testCase, coverageGoalStrategy.getName(testCase));
         }
-
-        // Add numbers to remaining duplicate names
-        fixAmbiguousTestNames();
     }
 
     /**
-     * There may be tests with the same calculated name, in which case we add a number suffix
+     * There may be tests with the same calculated name, in which suggest another test name
      */
-    private void fixAmbiguousTestNames() {
-        Map<String, Integer> nameCount = new LinkedHashMap<>();
-        Map<String, Integer> testCount = new LinkedHashMap<>();
-        for (String methodName : testToName.values()) {
-            if (nameCount.containsKey(methodName))
-                nameCount.put(methodName, nameCount.get(methodName) + 1);
-            else {
-                nameCount.put(methodName, 1);
-                testCount.put(methodName, 0);
-            }
-        }
+    private String fixAmbiguousTestNames(TestCase test, String code, String suggestedName, int recursive) {
+        if (recursive == RECURSIVE_LIMIT)
+            return testToName.get(test);
+
         for (Map.Entry<TestCase, String> entry : testToName.entrySet()) {
-            if (nameCount.get(entry.getValue()) > 1) {
-                int num = testCount.get(entry.getValue());
-                testCount.put(entry.getValue(), num + 1);
-                testToName.put(entry.getKey(), entry.getValue() + num);
+            if (entry.getValue().equalsIgnoreCase(suggestedName) && !entry.getKey().equals(test)) {
+                return fixAmbiguousTestNames(test, code, getDescriptiveLLMTestName(test, code), recursive + 1);
             }
         }
+        return suggestedName;
     }
 
     @Override
     public String getName(TestCase test) {
         return testToName.get(test);
+    }
+
+    @Override
+    public String getName(TestCase test, String code) {
+        return getLLMTestName(test, code);
     }
 }
 

@@ -9,11 +9,10 @@ public class LLMValidator {
     private final LLMHandler llm = new LLMHandler();
 
     private String improveUnderstandability(String code, int i) {
-        String improvedCode = llm.improveUnderstandability(code);
-
-        if (i == 5) {
+        if (i == 5)
             return code;
-        }
+
+        String improvedCode = llm.improveUnderstandability(code);
 
         if (improvedCode == null) {
             return improveUnderstandability(code, i + 1);
@@ -35,12 +34,10 @@ public class LLMValidator {
 
 
     private CtClass<?> improveTestData(String code, int i) {
-        String improvedCode = llm.improveTestData(code);
-
-        if (i == 5) {
+        if (i == 5)
             return null;
-        }
 
+        String improvedCode = llm.improveTestData(code);
         if (improvedCode == null) {
             return improveTestData(code, i + 1);
         }
@@ -57,5 +54,21 @@ public class LLMValidator {
 
     public CtClass<?> improveTestData(String code) {
         return improveTestData(code, 0);
+    }
+
+    private String suggestTestName(String code, int i){
+        if (i == 5)
+            return null;
+
+        String suggestedTestName = llm.suggestTestName(code);
+        if (suggestedTestName == null) {
+            return suggestTestName(code, i + 1);
+        }
+
+        return suggestedTestName;
+    }
+
+    public String suggestTestName(String code){
+        return suggestTestName(code, 0);
     }
 }

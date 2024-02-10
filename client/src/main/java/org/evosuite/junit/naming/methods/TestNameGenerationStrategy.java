@@ -26,4 +26,5 @@ import org.evosuite.testcase.TestCase;
  */
 public interface TestNameGenerationStrategy {
     String getName(TestCase test);
+    String getName(TestCase test, String code);
 }

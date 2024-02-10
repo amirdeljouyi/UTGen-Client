@@ -61,4 +61,9 @@ public class NumberedTestNameGenerationStrategy implements TestNameGenerationStr
     public String getName(TestCase test) {
         return testToName.get(test);
     }
+
+    @Override
+    public String getName(TestCase test, String code) {
+        return getName(test);
+    }
 }
