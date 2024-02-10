@@ -20,6 +20,7 @@
 
 package org.evosuite.junit.writer;
 
+import com.google.googlejavaformat.java.FormatterException;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.OutputGranularity;
@@ -42,12 +43,15 @@ import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.TestCaseExecutor;
 import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.FileIOUtils;
+import org.evosuite.utils.LoggingUtils;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.objectweb.asm.Opcodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.google.googlejavaformat.java.Formatter;
+
 
 import javax.swing.*;
 import java.io.File;
@@ -229,7 +233,7 @@ public class TestSuiteWriter implements Opcodes {
         } else if (Properties.TEST_NAMING_STRATEGY == Properties.TestNamingStrategy.COVERAGE) {
             nameGenerator = new CoverageGoalTestNameGenerationStrategy(testCases, results);
         } else if (Properties.TEST_NAMING_STRATEGY == Properties.TestNamingStrategy.LLM_BASED) {
-            if(toImprove)
+            if (toImprove)
                 nameGenerator = new LLMBasedTestNameGenerationStrategy(testCases, results);
             else
                 nameGenerator = new CoverageGoalTestNameGenerationStrategy(testCases, results);
@@ -249,14 +253,14 @@ public class TestSuiteWriter implements Opcodes {
         if (Properties.OUTPUT_GRANULARITY == OutputGranularity.MERGED || testCases.size() == 0) {
             File file = new File(dir + "/" + name + ".java");
             //executor.newObservers();
-            content = getUnitTestsAllInSameFile(name, results, toImprove);
+            content = reformatTestCode(getUnitTestsAllInSameFile(name, results, toImprove), toImprove);
             FileIOUtils.writeFile(content, file);
             generated.add(file);
         } else {
             for (int i = 0; i < testCases.size(); i++) {
                 File file = new File(dir + "/" + name + "_" + i + ".java"); // e.g., dir/Foo_ESTest_0.java
                 //executor.newObservers();
-                String testCode = getOneUnitTestInAFile(name, i, results, toImprove);
+                String testCode = reformatTestCode(getOneUnitTestInAFile(name, i, results, toImprove), toImprove);
                 FileIOUtils.writeFile(testCode, file);
                 content += testCode;
                 generated.add(file);
@@ -277,6 +281,21 @@ public class TestSuiteWriter implements Opcodes {
 
         TestGenerationResultBuilder.getInstance().setTestSuiteCode(content);
         return generated;
+    }
+
+    String reformatTestCode(String content, Boolean toImprove) {
+        if (!toImprove)
+            return content;
+
+//        LoggingUtils.getEvoLogger().info("Before Formatter, content is: " + content);
+        String formattedSource = content;
+        try {
+            formattedSource = new Formatter().formatSource(formattedSource);
+        } catch (FormatterException e) {
+            LoggingUtils.getEvoLogger().info("source code formatter error: " + e.getMessage() + " testCode is: " + content);
+        }
+//        LoggingUtils.getEvoLogger().info("After Formatter, content is: " + formattedSource);
+        return formattedSource;
     }
 
     /**
@@ -618,7 +637,7 @@ public class TestSuiteWriter implements Opcodes {
         return "}" + NEWLINE;
     }
 
-    protected String testSignature(int number, int id, String methodName){
+    protected String testSignature(int number, int id, String methodName) {
         String testInfo = getInformation(id);
         StringBuilder builder = new StringBuilder();
 
@@ -733,7 +752,7 @@ public class TestSuiteWriter implements Opcodes {
         String bodyCode = builder.toString();
         // Get the test method name generated in TestNameGenerator
         String methodName;
-        if (toImprove){
+        if (toImprove) {
             methodName = nameGenerator.getName(testCases.get(id), bodyCode);
         } else {
             methodName = nameGenerator.getName(testCases.get(id));
@@ -752,6 +771,14 @@ public class TestSuiteWriter implements Opcodes {
         builder.append(NEWLINE);
 
         String testCode = builder.toString();
+//        String formattedSource = testCode;
+
+//        try {
+//            formattedSource = new Formatter().formatSource(testCode);
+//        } catch (FormatterException e) {
+//            LoggingUtils.getEvoLogger().info("source code formatter error: " + e.getMessage() + " testcode is: " + testCode);
+//        }
+
         TestGenerationResultBuilder.getInstance().setTestCase(methodName, testCode, test,
                 testInfo, result);
         return testCode;
