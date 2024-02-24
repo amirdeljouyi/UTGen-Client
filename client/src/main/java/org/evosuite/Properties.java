@@ -1250,6 +1250,10 @@ public class Properties {
     @Parameter(key = "variable_naming_strategy", group = "Output", description = "What strategy to use to derive names for variables")
     public static VariableNamingStrategy VARIABLE_NAMING_STRATEGY = VariableNamingStrategy.TYPE_BASED;
 
+    @Parameter(key = "reformat", group = "Output", description = "Reformat the output tests")
+    public static boolean REFORMAT = true;
+
+
     // ---------------------------------------------------------------
     // Sandbox
     @Parameter(key = "sandbox", group = "Sandbox", description = "Execute tests in a sandbox environment")
@@ -1660,6 +1664,19 @@ public class Properties {
 
     @Parameter(key = "sourcepath", group = "Test Seeding", description = "The path to the test case source.")
     public static String[] SOURCEPATH = new String[]{""};
+
+
+    // ---------------------------------------------------------------
+    // improve test suite by LLM
+
+    @Parameter(key = "llm_testdata", group = "llm", description = "Improve Test Data by LLM")
+    public static boolean LLM_TEST_DATA = true;
+
+    @Parameter(key = "llm_testname", group = "llm", description = "Improve Test Name by LMM")
+    public static boolean LLM_TEST_NAME = true;
+
+    @Parameter(key = "llm_postprocessing", group = "llm", description = "ADD Comments and Improve the variable namings by LLM.")
+    public static boolean LLM_POST_PROCESSING = true;
 
     // ---------------------------------------------------------------
     // Eclipse Plug-in flag

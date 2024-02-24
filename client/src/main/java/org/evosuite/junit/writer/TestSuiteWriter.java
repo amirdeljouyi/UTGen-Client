@@ -284,7 +284,7 @@ public class TestSuiteWriter implements Opcodes {
     }
 
     String reformatTestCode(String content, Boolean toImprove) {
-        if (!toImprove)
+        if (!toImprove || !Properties.REFORMAT)
             return content;
 
 //        LoggingUtils.getEvoLogger().info("Before Formatter, content is: " + content);

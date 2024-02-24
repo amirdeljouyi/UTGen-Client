@@ -223,7 +223,11 @@ public class TestSuiteGenerator {
 
             // progressMonitor.setCurrentPhase("Writing JUnit test cases");
             LoggingUtils.getEvoLogger().info("* " + ClientProcess.getPrettyPrintIdentifier() + "Writing tests to file");
-            result = writeJUnitTestsAndCreateResult(testCases, true);
+            if(Properties.LLM_POST_PROCESSING) {
+                result = writeJUnitTestsAndCreateResult(testCases, true);
+            } else{
+                result = writeJUnitTestsAndCreateResult(testCases, false);
+            }
             writeJUnitFailingTests();
         }
         TestCaseExecutor.pullDown();
@@ -407,15 +411,16 @@ public class TestSuiteGenerator {
     protected void postProcessTests(TestSuiteChromosome testSuite) {
         postProcessMinimizationAndOptimization(testSuite);
 
-        LoggingUtils.getEvoLogger().info("* " + ClientProcess.getPrettyPrintIdentifier() + "Generated before the refinement " + testSuite.size()
-                + " tests with total length " + testSuite.totalLengthOfTestCases());
+        if (Properties.LLM_TEST_DATA) {
+            LoggingUtils.getEvoLogger().info("* " + ClientProcess.getPrettyPrintIdentifier() + "Generated before the refinement " + testSuite.size()
+                    + " tests with total length " + testSuite.totalLengthOfTestCases());
 
-        Refinement refinement = new Refinement(testSuite);
-        refinement.refine();
+            Refinement refinement = new Refinement(testSuite);
+            refinement.refine();
 
-        LoggingUtils.getEvoLogger().info("* " + ClientProcess.getPrettyPrintIdentifier() + "Generated after the refinement and before minimization " + testSuite.size()
-                + " tests with total length " + testSuite.totalLengthOfTestCases());
-
+            LoggingUtils.getEvoLogger().info("* " + ClientProcess.getPrettyPrintIdentifier() + "Generated after the refinement and before minimization " + testSuite.size()
+                    + " tests with total length " + testSuite.totalLengthOfTestCases());
+        }
 //        ClientServices.getInstance().getClientNode().changeState(ClientState.INLINING);
 
 //        testSuite.getTestChromosomes()
