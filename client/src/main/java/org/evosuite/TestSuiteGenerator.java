@@ -223,11 +223,7 @@ public class TestSuiteGenerator {
 
             // progressMonitor.setCurrentPhase("Writing JUnit test cases");
             LoggingUtils.getEvoLogger().info("* " + ClientProcess.getPrettyPrintIdentifier() + "Writing tests to file");
-            if(Properties.LLM_POST_PROCESSING) {
-                result = writeJUnitTestsAndCreateResult(testCases, true);
-            } else{
-                result = writeJUnitTestsAndCreateResult(testCases, false);
-            }
+            result = writeJUnitTestsAndCreateResult(testCases, false);
             writeJUnitFailingTests();
         }
         TestCaseExecutor.pullDown();
@@ -556,11 +552,6 @@ public class TestSuiteGenerator {
             else
                 logger.warn("Cannot run Junit test. Cause {}", ClassPathHacker.getCause());
         }
-
-        // add LLM as Post-Processing job
-
-//        LLMHandler llm = new LLMHandler(testSuite);
-//        llm.improveUnderstandability();
     }
 
     /**

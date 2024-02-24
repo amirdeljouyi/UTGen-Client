@@ -21,6 +21,7 @@ package org.evosuite.junit;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.evosuite.ClientProcess;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.TimeController;
@@ -32,6 +33,7 @@ import org.evosuite.runtime.classhandling.JDKClassResetter;
 import org.evosuite.runtime.sandbox.Sandbox;
 import org.evosuite.runtime.util.JarPathing;
 import org.evosuite.testcase.TestCase;
+import org.evosuite.utils.LoggingUtils;
 import org.junit.platform.engine.TestExecutionResult;
 import org.junit.platform.engine.discovery.DiscoverySelectors;
 import org.junit.platform.launcher.*;
@@ -87,6 +89,7 @@ public abstract class JUnitAnalyzer {
     public static void removeTestsThatDoNotCompile(List<TestCase> tests) {
 
         logger.info("Going to execute: removeTestsThatDoNotCompile");
+        LoggingUtils.getEvoLogger().info("Going to execute: removeTestsThatDoNotCompile");
 
         if (tests == null || tests.isEmpty()) { //nothing to do
             return;
@@ -111,12 +114,17 @@ public abstract class JUnitAnalyzer {
             try {
                 List<TestCase> singleList = new ArrayList<>();
                 singleList.add(test);
-                List<File> generated = compileTests(singleList, dir);
+                List<File> generated = compileTests(singleList, dir, false);
                 if (generated == null) {
                     iter.remove();
                     String code = test.toCode();
                     logger.error("Failed to compile test case:\n" + code);
+                } else {
+                    if (Properties.LLM_POST_PROCESSING) {
+                        improveTestCase(singleList, dir, test);
+                    }
                 }
+
             } finally {
                 //let's be sure we clean up all what we wrote on disk
                 if (dir != null) {
@@ -130,6 +138,18 @@ public abstract class JUnitAnalyzer {
             }
 
         } // end of while
+    }
+
+    private static void improveTestCase(List<TestCase> singleList, File dir, TestCase test) {
+        int i = 0;
+        while (i != Properties.LLM_POST_PROCESSING_REPROMPT_BUDGET) {
+            List<File> improvedGenerated = compileTests(singleList, dir, true);
+            if (improvedGenerated != null) {
+                return;
+            }
+            i++;
+        }
+        test.retractImprovedCode();
     }
 
     /**
@@ -147,6 +167,7 @@ public abstract class JUnitAnalyzer {
 
         int numUnstable = 0;
         logger.info("Going to execute: handleTestsThatAreUnstable");
+        LoggingUtils.getEvoLogger().info("Going to execute: handleTestsThatAreUnstable");
 
         if (tests == null || tests.isEmpty()) { //nothing to do
             return numUnstable;
@@ -160,7 +181,7 @@ public abstract class JUnitAnalyzer {
         logger.debug("Created tmp folder: " + dir.getAbsolutePath());
 
         try {
-            List<File> generated = compileTests(tests, dir);
+            List<File> generated = compileTests(tests, dir, false);
             if (generated == null) {
                 /*
                  * Note: in theory this shouldn't really happen, as check for compilation
@@ -305,7 +326,7 @@ public abstract class JUnitAnalyzer {
     // EvoSuite classloader, and thus cannot easily be re-loaded
     private static int NUM = 0;
 
-    private static List<File> compileTests(List<TestCase> tests, File dir) {
+    private static List<File> compileTests(List<TestCase> tests, File dir, boolean toImprove) {
 
         TestSuiteWriter suite = new TestSuiteWriter();
         suite.insertAllTests(tests);
@@ -317,7 +338,8 @@ public abstract class JUnitAnalyzer {
 
         try {
             //now generate the JUnit test case
-            List<File> generated = suite.writeTestSuite(name, dir.getAbsolutePath(), Collections.EMPTY_LIST, false);
+            LoggingUtils.getEvoLogger().info("* " + ClientProcess.getPrettyPrintIdentifier() + "Compiling Tests");
+            List<File> generated = suite.writeTestSuite(name, dir.getAbsolutePath(), Collections.EMPTY_LIST, toImprove);
             for (File file : generated) {
                 if (!file.exists()) {
                     logger.error("Supposed to generate " + file
@@ -529,7 +551,7 @@ public abstract class JUnitAnalyzer {
         }
 
         try {
-            List<File> generated = compileTests(tests, dir);
+            List<File> generated = compileTests(tests, dir, false);
             if (generated == null) {
                 logger.warn("Failed to compile the test cases ");
                 return false;

@@ -155,12 +155,16 @@ public class JUnit5LLMTestAdapter implements UnitTestAdapter {
      */
     @Override
     public String getTestString(int id, TestCase test, Map<Integer, Throwable> exceptions, Boolean toImprove) {
+        if(test.isTestImproved())
+            return test.improvedToCode();
+
         String code = test.toCode(exceptions);
         LoggingUtils.getEvoLogger().info("** Write a test suite: " + id + " called: " + numberCalled + " to improve: " + toImprove);
         numberCalled++;
 
         if (toImprove) {
-            return llm.improveUnderstandability(code);
+            code = llm.improveUnderstandability(code);
+            test.setImprovedCode(code);
         }
         return code;
     }
@@ -175,6 +179,9 @@ public class JUnit5LLMTestAdapter implements UnitTestAdapter {
     @Override
     public String getTestString(int id, TestCase test,
                                 Map<Integer, Throwable> exceptions, TestCodeVisitor visitor, Boolean toImprove) {
+        if(test.isTestImproved())
+            return test.improvedToCode();
+
         LoggingUtils.getEvoLogger().info("** Write a test suite: " + id + " called: " + numberCalled + " to improve: " + toImprove);
         numberCalled++;
 
@@ -184,7 +191,8 @@ public class JUnit5LLMTestAdapter implements UnitTestAdapter {
         String code = visitor.getCode();
 
         if (toImprove) {
-            return llm.improveUnderstandability(code);
+            code = llm.improveUnderstandability(code);
+            test.setImprovedCode(code);
         }
         return code;
     }

@@ -88,6 +88,12 @@ public class DefaultTestCase implements TestCase, Serializable {
 
     private int id;
 
+    private boolean isCodeImproved = false;
+    private String improvedCode;
+
+    private int improvedTimes = 0;
+
+
     /**
      * Constructs an empty test case, i.e., initially containing no statements.
      */
@@ -1291,6 +1297,35 @@ public class DefaultTestCase implements TestCase, Serializable {
         visitor.setExceptions(exceptions);
         accept(visitor);
         return visitor.getCode();
+    }
+
+    @Override
+    public boolean isTestImproved(){
+        return isCodeImproved;
+    }
+
+    @Override
+    public void setImprovedCode(String code){
+        isCodeImproved = true;
+        improvedCode = code;
+        improvedTimes++;
+    }
+
+    @Override
+    public String improvedToCode(){
+        return improvedCode;
+    }
+
+    @Override
+    public void retractImprovedCode(){
+        isCodeImproved = false;
+        improvedCode = null;
+        getStatement(0).addComment("rollbacked to evosuite");
+    }
+
+    @Override
+    public int getImprovedTimes(){
+        return improvedTimes;
     }
 
     /* (non-Javadoc)

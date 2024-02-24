@@ -1678,6 +1678,9 @@ public class Properties {
     @Parameter(key = "llm_postprocessing", group = "llm", description = "ADD Comments and Improve the variable namings by LLM.")
     public static boolean LLM_POST_PROCESSING = true;
 
+    @Parameter(key = "llm_postprocessing_reprompt_budget", group = "llm", description = "How many times it can be reprompted")
+    public static int LLM_POST_PROCESSING_REPROMPT_BUDGET = 2;
+
     // ---------------------------------------------------------------
     // Eclipse Plug-in flag
 

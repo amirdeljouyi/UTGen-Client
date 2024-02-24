@@ -479,6 +479,16 @@ public interface TestCase extends Iterable<Statement>, Cloneable, Listenable<Voi
      */
     String toCode();
 
+
+    boolean isTestImproved();
+
+    void setImprovedCode(String code);
+
+    void retractImprovedCode();
+
+    String improvedToCode();
+    int getImprovedTimes();
+
     /**
      * Get Java code representation of the test case
      *
