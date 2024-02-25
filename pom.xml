@@ -2,14 +2,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.evosuite</groupId>
-    <artifactId>evosuite</artifactId>
-    <name>EvoSuite</name>
-    <description>n/a</description>
-    <version>1.2.1-SNAPSHOT</version>
+    <groupId>nl.tudelft.serg</groupId>
+    <artifactId>utestgen</artifactId>
+    <name>UTestGen</name>
+    <description>UtestGen is a LLM and Search-Based powered Test Generator, it is built on EvoSuite</description>
+    <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <url>http://www.evosuite.org/</url>
-    <inceptionYear>2010</inceptionYear>
 
     <licenses>
         <license>
@@ -18,17 +16,6 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
-
-    <issueManagement>
-        <system>Github</system>
-        <url>https://github.com/EvoSuite/evosuite/issues</url>
-    </issueManagement>
-
-    <mailingLists>
-        <mailingList>
-            <archive>https://groups.google.com/forum/#!forum/evosuite</archive>
-        </mailingList>
-    </mailingLists>
 
     <modules>
         <module>master</module>
@@ -42,51 +29,6 @@
     <prerequisites>
         <maven>3.1</maven>
     </prerequisites>
-
-    <developers>
-        <developer>
-            <id>fraser</id>
-            <name>Gordon Fraser</name>
-            <email>Gordon.Fraser@sheffield.ac.uk</email>
-            <url>http://staffwww.dcs.shef.ac.uk/people/G.Fraser</url>
-            <organization>University of Sheffield</organization>
-            <organizationUrl>http://www.sheffield.ac.uk/dcs</organizationUrl>
-            <timezone>2</timezone>
-            <roles>
-                <role>Developer</role>
-            </roles>
-        </developer>
-        <developer>
-            <id>arcuri</id>
-            <name>Andrea Arcuri</name>
-            <email>arcuri82@gmail.com</email>
-            <url>http://www.arcuriandrea.org</url>
-            <timezone>2</timezone>
-            <roles>
-                <role>Developer</role>
-            </roles>
-        </developer>
-        <developer>
-            <id>jmrojas</id>
-            <name>Jose Miguel Rojas</name>
-            <timezone>2</timezone>
-            <roles>
-                <role>Developer</role>
-            </roles>
-        </developer>
-    </developers>
-
-    <scm>
-        <connection>scm:git:https://github.com/EvoSuite/evosuite.git</connection>
-        <developerConnection>scm:git:https://github.com/EvoSuite/evosuite.git</developerConnection>
-        <url>https://github.com/EvoSuite/evosuite/tree/master</url>
-    </scm>
-
-    <organization>
-        <name>EvoSuite</name>
-        <url>http://www.evosuite.org/</url>
-    </organization>
-
 
     <profiles>
         <profile>
@@ -798,16 +740,6 @@
                                         <pattern>com.google.googlejavaformat</pattern>
                                         <shadedPattern>org.evosuite.shaded.com.google.googlejavaformat</shadedPattern>
                                     </relocation>
-                                    <!--
-                                    <relocation>
-                                        <pattern>org.xml</pattern>
-                                        <shadedPattern>org.evosuite.shaded.org.xml</shadedPattern>
-                                    </relocation>
-                                    <relocation>
-                                        <pattern>org.w3c</pattern>
-                                        <shadedPattern>org.evosuite.shaded.org.w3c</shadedPattern>
-                                    </relocation>
-                                    -->
                                     <relocation>
                                         <pattern>org.aopalliance</pattern>
                                         <shadedPattern>org.evosuite.shaded.org.aopalliance</shadedPattern>
@@ -851,14 +783,6 @@
                                         <pattern>fr.inria.gforge.spoon</pattern>
                                         <shadedPattern>org.evosuite.shaded.fr.inria.gforge.spoon</shadedPattern>
                                     </relocation>
-                                    <!--<relocation>-->
-                                        <!--<pattern>org.slf4j</pattern>-->
-                                        <!--<shadedPattern>org.evosuite.shaded.org.slf4j</shadedPattern>-->
-                                    <!--</relocation>-->
-                                    <!--<relocation>-->
-                                        <!--<pattern>ch.qos.logback</pattern>-->
-                                        <!--<shadedPattern>org.evosuite.shaded.ch.qos.logback</shadedPattern>-->
-                                    <!--</relocation>-->
                                 </relocations>
                             </configuration>
                         </execution>

@@ -2,13 +2,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<groupId>org.evosuite</groupId>
-		<artifactId>evosuite</artifactId>
-		<version>1.2.1-SNAPSHOT</version>
-	</parent>
+    <parent>
+        <groupId>nl.tudelft.serg</groupId>
+        <artifactId>utestgen</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
 
-	<artifactId>evosuite-client</artifactId>
+	<artifactId>utestgen-client</artifactId>
 	<packaging>jar</packaging>
 
     <profiles>
@@ -31,8 +31,8 @@
 		<!-- EvoSuite Modules -->
 
 		<dependency>
-			<groupId>org.evosuite</groupId>
-			<artifactId>evosuite-runtime</artifactId>
+			<groupId>nl.tudelft.serg</groupId>
+			<artifactId>utestgen-runtime</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 

@@ -3,16 +3,16 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.evosuite</groupId>
-        <artifactId>evosuite</artifactId>
-        <version>1.2.1-SNAPSHOT</version>
+        <groupId>nl.tudelft.serg</groupId>
+        <artifactId>utestgen</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>evosuite-runtime</artifactId>
+    <artifactId>utestgen-runtime</artifactId>
     <packaging>jar</packaging>
 
     <!-- "runtime" is what is going to be linked in the user's applications.
-        As such, it should have no reference to any other EvoSuite module, and we
+        As such, it should have no reference to any other EvoSuite/UTestGen module, and we
         should try to keep the number of external dependencies to a minimum -->
 
     <profiles>
