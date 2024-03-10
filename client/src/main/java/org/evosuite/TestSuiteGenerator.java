@@ -208,6 +208,7 @@ public class TestSuiteGenerator {
         }
 
         TestSuiteChromosome testCases = generateTests();
+        TestSuiteChromosome originalTestCases = testCases.clone();
 
         // As post process phases such as minimisation, coverage analysis, etc., may call getFitness()
         // of each fitness function, which may try to update the Archive, in here we explicitly disable
@@ -217,13 +218,15 @@ public class TestSuiteGenerator {
 
         TestGenerationResult result = null;
         if (ClientProcess.DEFAULT_CLIENT_NAME.equals(ClientProcess.getIdentifier())) {
-            postProcessTests(testCases);
+            postProcessTests(testCases, false);
+            postProcessTests(originalTestCases, true);
             ClientServices.getInstance().getClientNode().publishPermissionStatistics();
             PermissionStatistics.getInstance().printStatistics(LoggingUtils.getEvoLogger());
 
             // progressMonitor.setCurrentPhase("Writing JUnit test cases");
             LoggingUtils.getEvoLogger().info("* " + ClientProcess.getPrettyPrintIdentifier() + "Writing tests to file");
             result = writeJUnitTestsAndCreateResult(testCases, false);
+            TestGenerationResult originalResult = writeJUnitTestsAndCreateResult(originalTestCases, false, Properties.JUNIT_ORIGINAL_SUFFIX);
             writeJUnitFailingTests();
         }
         TestCaseExecutor.pullDown();
@@ -404,10 +407,10 @@ public class TestSuiteGenerator {
      *
      * @param testSuite
      */
-    protected void postProcessTests(TestSuiteChromosome testSuite) {
+    protected void postProcessTests(TestSuiteChromosome testSuite, boolean original) {
         postProcessMinimizationAndOptimization(testSuite);
 
-        if (Properties.LLM_TEST_DATA) {
+        if (Properties.LLM_TEST_DATA && !original) {
             LoggingUtils.getEvoLogger().info("* " + ClientProcess.getPrettyPrintIdentifier() + "Generated before the refinement " + testSuite.size()
                     + " tests with total length " + testSuite.totalLengthOfTestCases());
 
@@ -548,7 +551,7 @@ public class TestSuiteGenerator {
         } else if (Properties.JUNIT_TESTS && (Properties.JUNIT_CHECK == Properties.JUnitCheckValues.TRUE ||
                 Properties.JUNIT_CHECK == Properties.JUnitCheckValues.OPTIONAL)) {
             if (ClassPathHacker.isJunitCheckAvailable())
-                compileAndCheckTests(testSuite);
+                compileAndCheckTests(testSuite, original);
             else
                 logger.warn("Cannot run Junit test. Cause {}", ClassPathHacker.getCause());
         }
@@ -561,7 +564,7 @@ public class TestSuiteGenerator {
      *
      * @param chromosome
      */
-    private void compileAndCheckTests(TestSuiteChromosome chromosome) {
+    private void compileAndCheckTests(TestSuiteChromosome chromosome, boolean original) {
         LoggingUtils.getEvoLogger().info("* " + ClientProcess.getPrettyPrintIdentifier() + "Compiling and checking tests");
 
         if (!JUnitAnalyzer.isJavaCompilerAvailable()) {
@@ -591,7 +594,7 @@ public class TestSuiteGenerator {
         // current tests
 
         // first, let's just get rid of all the tests that do not compile
-        JUnitAnalyzer.removeTestsThatDoNotCompile(testCases);
+        JUnitAnalyzer.removeTestsThatDoNotCompile(testCases, original);
 
         // compile and run each test one at a time. and keep track of total time
         long start = java.lang.System.currentTimeMillis();

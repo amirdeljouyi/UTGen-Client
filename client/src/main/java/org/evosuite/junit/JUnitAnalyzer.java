@@ -86,7 +86,7 @@ public abstract class JUnitAnalyzer {
      *
      * @param tests
      */
-    public static void removeTestsThatDoNotCompile(List<TestCase> tests) {
+    public static void removeTestsThatDoNotCompile(List<TestCase> tests, Boolean original) {
 
         logger.info("Going to execute: removeTestsThatDoNotCompile");
         LoggingUtils.getEvoLogger().info("Going to execute: removeTestsThatDoNotCompile");
@@ -120,7 +120,7 @@ public abstract class JUnitAnalyzer {
                     String code = test.toCode();
                     logger.error("Failed to compile test case:\n" + code);
                 } else {
-                    if (Properties.LLM_POST_PROCESSING) {
+                    if (Properties.LLM_POST_PROCESSING && !original) {
                         improveTestCase(singleList, dir, test);
                     }
                 }

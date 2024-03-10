@@ -89,7 +89,7 @@ public class ReadWriteSystemPropertiesSystemTest extends SystemTestBase {
 
         try {
             Sandbox.initializeSecurityManagerForSUT();
-            JUnitAnalyzer.removeTestsThatDoNotCompile(list);
+            JUnitAnalyzer.removeTestsThatDoNotCompile(list, false);
         } finally {
             Sandbox.resetDefaultSecurityManager();
         }
@@ -176,7 +176,7 @@ public class ReadWriteSystemPropertiesSystemTest extends SystemTestBase {
                 Assert.assertFalse(tc.isUnstable());
             }
 
-            JUnitAnalyzer.removeTestsThatDoNotCompile(list);
+            JUnitAnalyzer.removeTestsThatDoNotCompile(list, false);
             Assert.assertEquals(n, list.size());
             JUnitAnalyzer.handleTestsThatAreUnstable(list);
             Assert.assertEquals(n, list.size());

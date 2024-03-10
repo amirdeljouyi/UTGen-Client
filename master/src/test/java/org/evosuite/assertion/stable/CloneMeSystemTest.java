@@ -82,7 +82,7 @@ public class CloneMeSystemTest extends SystemTestBase {
         System.out.println("EvolvedTestSuite:\n" + best);
 
         List<TestCase> tests = best.getTests();
-        boolean allStable = TestStabilityChecker.checkStability(tests);
+        boolean allStable = TestStabilityChecker.checkStability(tests, false);
         assertTrue(allStable);
     }
 

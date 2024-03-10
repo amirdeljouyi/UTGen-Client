@@ -128,7 +128,7 @@ public class JUnitAnalyzerTest {
 
         System.out.println("\n COMPILATION CHECK \n");
         //first try to compile (which implies execution)
-        JUnitAnalyzer.removeTestsThatDoNotCompile(list);
+        JUnitAnalyzer.removeTestsThatDoNotCompile(list, false);
         Assert.assertEquals(1, list.size());
         Assert.assertFalse(file.exists());
 

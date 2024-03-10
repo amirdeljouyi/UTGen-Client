@@ -1026,6 +1026,9 @@ public class Properties {
     @Parameter(key = "junit_suffix", group = "Output", description = "Suffix that is appended at each generated JUnit file name")
     public static String JUNIT_SUFFIX = "_ESTest";
 
+    @Parameter(key = "junit_suffix", group = "Output", description = "Suffix that is appended at each generated JUnit file name")
+    public static String JUNIT_ORIGINAL_SUFFIX = "_Original_ESTest";
+
     @Parameter(key = "junit_failed_suffix", group = "Output", description = "Suffix that is appended at each generated JUnit file name for failing tests")
     public static String JUNIT_FAILED_SUFFIX = "_Failed_ESTest";
 

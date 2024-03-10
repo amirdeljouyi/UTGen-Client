@@ -28,7 +28,7 @@ import org.evosuite.testcase.execution.TestCaseExecutor;
 import java.util.List;
 
 public abstract class TestStabilityChecker {
-    public static boolean checkStability(List<TestCase> list) {
+    public static boolean checkStability(List<TestCase> list, Boolean original) {
         int n = list.size();
         boolean previousRunOnSeparateProcess = Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS;
         Properties.JUNIT_CHECK_ON_SEPARATE_PROCESS = false;
@@ -49,7 +49,7 @@ public abstract class TestStabilityChecker {
 
 
         try {
-            JUnitAnalyzer.removeTestsThatDoNotCompile(list);
+            JUnitAnalyzer.removeTestsThatDoNotCompile(list, original);
             if (n != list.size()) {
                 return false;
             }
