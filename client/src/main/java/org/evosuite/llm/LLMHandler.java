@@ -1,7 +1,6 @@
 package org.evosuite.llm;
 
 import com.apollographql.apollo3.api.ApolloResponse;
-import org.evosuite.testcase.TestCase;
 import org.evosuite.utils.LoggingUtils;
 
 public class LLMHandler {

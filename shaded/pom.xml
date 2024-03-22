@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <groupId>nl.tudelft.serg</groupId>
+        <groupId>org.utgen</groupId>
         <artifactId>utestgen</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
@@ -11,7 +11,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>nl.tudelft.serg</groupId>
+            <groupId>org.utgen</groupId>
             <artifactId>utestgen-master</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -46,10 +46,10 @@
                             <createDependencyReducedPom>true</createDependencyReducedPom>
                             <relocations>
                                 <relocation>
-                                    <pattern>nl.tudelft.serg</pattern>
+                                    <pattern>org.utgen</pattern>
                                     <!-- Note: besides this file, the prefix "shaded." will also be used in other
                                     files, eg the log configuration ones  -->
-                                    <shadedPattern>shaded.nl.tudelft.serg</shadedPattern>
+                                    <shadedPattern>shaded.org.utgen</shadedPattern>
                                 </relocation>
                             </relocations>
                         </configuration>

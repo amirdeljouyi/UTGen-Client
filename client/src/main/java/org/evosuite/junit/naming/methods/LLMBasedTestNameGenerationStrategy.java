@@ -26,9 +26,6 @@ import org.evosuite.testcase.execution.ExecutionResult;
 
 import java.util.*;
 
-/**
- * @author Amirhossein Deljouyi
- */
 public class LLMBasedTestNameGenerationStrategy implements TestNameGenerationStrategy {
 
     private final Map<TestCase, String> testToName = new LinkedHashMap<>();

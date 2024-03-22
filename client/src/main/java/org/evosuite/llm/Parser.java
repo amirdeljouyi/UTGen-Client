@@ -5,13 +5,8 @@ import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.statements.*;
 import org.evosuite.testcase.statements.numeric.*;
 import org.evosuite.testcase.variable.ArrayIndex;
-import org.evosuite.testcase.variable.ArrayReference;
-import org.evosuite.testcase.variable.ConstantValue;
 import org.evosuite.testcase.variable.VariableReference;
 import org.evosuite.utils.LoggingUtils;
-import org.evosuite.utils.ParameterizedTypeImpl;
-import org.junit.Test;
-import spoon.Launcher;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
@@ -232,7 +227,6 @@ public class Parser {
 
     private EntityWithParametersStatement parseMethodStatement(TestCase testCase, CtInvocation<?> invocation) {
         EntityWithParametersStatement matched = matchMethods(testCase, invocation);
-
         List<CtExpression<?>> args = invocation.getArguments();
         ArrayList<VariableReference> parameters = new ArrayList<>();
 
