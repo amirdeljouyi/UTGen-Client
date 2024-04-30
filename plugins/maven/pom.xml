@@ -24,18 +24,18 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.evosuite</groupId>
-            <artifactId>evosuite-runtime</artifactId>
+            <groupId>org.utgen</groupId>
+            <artifactId>utestgen-runtime</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.evosuite</groupId>
-            <artifactId>evosuite-client</artifactId>
+            <groupId>org.utgen</groupId>
+            <artifactId>utestgen-client</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.evosuite</groupId>
-            <artifactId>evosuite-master</artifactId>
+            <groupId>org.utgen</groupId>
+            <artifactId>utestgen-master</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

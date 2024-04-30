@@ -20,8 +20,8 @@
     <dependencies>
         <!-- Force this module to be built after the Master-->
         <dependency>
-            <groupId>org.evosuite</groupId>
-            <artifactId>evosuite-master</artifactId>
+            <groupId>org.utgen</groupId>
+            <artifactId>utestgen-master</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
