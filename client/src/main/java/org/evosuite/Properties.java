@@ -409,18 +409,18 @@ public class Properties {
     }
 
     /**
-	 * TODO (ilebrero) : Implement private fields tracking
-	 **/
-	public enum DSE_OBJECTS_MODEL_VERSION {
-		PUBLIC_FIELDS_NO_SUBCLASSES,
-		PUBLIC_FIELDS_AND_SUBCLASSES // TODO: Implement me!
-	}
+     * TODO (ilebrero) : Implement private fields tracking
+     **/
+    public enum DSE_OBJECTS_MODEL_VERSION {
+        PUBLIC_FIELDS_NO_SUBCLASSES,
+        PUBLIC_FIELDS_AND_SUBCLASSES // TODO: Implement me!
+    }
 
-	@Parameter(key = "dse_enable_objects_support", group = "DSE", description = "If objects should be supported by the concolic engine")
-	public static  boolean IS_DSE_OBJECTS_SUPPORT_ENABLED = false;
+    @Parameter(key = "dse_enable_objects_support", group = "DSE", description = "If objects should be supported by the concolic engine")
+    public static  boolean IS_DSE_OBJECTS_SUPPORT_ENABLED = false;
 
-	@Parameter(key = "selected_dse_module_objects_model_version", group = "DSE", description = "Which implementation of objects is used on the concolic engine.")
-	public static DSE_OBJECTS_MODEL_VERSION SELECTED_DSE_OBJECTS_MODEL_VERSION = DSE_OBJECTS_MODEL_VERSION.PUBLIC_FIELDS_NO_SUBCLASSES;
+    @Parameter(key = "selected_dse_module_objects_model_version", group = "DSE", description = "Which implementation of objects is used on the concolic engine.")
+    public static DSE_OBJECTS_MODEL_VERSION SELECTED_DSE_OBJECTS_MODEL_VERSION = DSE_OBJECTS_MODEL_VERSION.PUBLIC_FIELDS_NO_SUBCLASSES;
 
     @Parameter(key = "dse_module_version", group = "DSE", description = "Module version of DSE, mostly used for benchmarking between modules. For other things the new one is recomended.")
     public static DSE_MODULE_VERSION CURRENT_DSE_MODULE_VERSION = DSE_MODULE_VERSION.NEW;
@@ -1683,6 +1683,9 @@ public class Properties {
 
     @Parameter(key = "llm_postprocessing_reprompt_budget", group = "llm", description = "How many times it can be reprompted")
     public static int LLM_POST_PROCESSING_REPROMPT_BUDGET = 2;
+
+    @Parameter(key = "llm_graphql_entrypoint", group = "llm", description = "The URL to Connect the LLM Server")
+    public static String LLM_GRAPHQL_ENTRYPOINT = "0.0.0.0:8000/graphql";
 
     // ---------------------------------------------------------------
     // Eclipse Plug-in flag
