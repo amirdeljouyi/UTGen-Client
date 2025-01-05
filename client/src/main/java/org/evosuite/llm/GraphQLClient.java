@@ -10,6 +10,7 @@ import kotlin.coroutines.Continuation;
 import kotlin.coroutines.CoroutineContext;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
+import org.evosuite.Properties;
 import org.evosuite.llm.type.Response;
 import org.evosuite.utils.LoggingUtils;
 import org.jetbrains.annotations.NotNull;
@@ -25,7 +26,7 @@ public class GraphQLClient {
                 .build();
 
         ApolloClient.Builder builder = new ApolloClient.Builder()
-                .serverUrl("http://0.0.0.0:8000/graphql");
+                .serverUrl("http://" + Properties.LLM_GRAPHQL_ENTRYPOINT);
 
         client = builder.httpEngine(new DefaultHttpEngine(okHttpClient)).build();
     }

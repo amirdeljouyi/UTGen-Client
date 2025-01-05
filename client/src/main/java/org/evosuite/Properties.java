@@ -1684,6 +1684,9 @@ public class Properties {
     @Parameter(key = "llm_postprocessing_reprompt_budget", group = "llm", description = "How many times it can be reprompted")
     public static int LLM_POST_PROCESSING_REPROMPT_BUDGET = 2;
 
+    @Parameter(key = "llm_graphql_entrypoint", group = "llm", description = "The URL to Connect the LLM Server")
+    public static String LLM_GRAPHQL_ENTRYPOINT = "0.0.0.0:8000/graphql";
+
     // ---------------------------------------------------------------
     // Eclipse Plug-in flag
 
