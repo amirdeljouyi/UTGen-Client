@@ -19,10 +19,34 @@ The first phase is considered ***test data***, while the second and third phases
 
 ### Configuration Properties
 
-To tailor the use of LLM within the test generation process, the following properties can be adjusted or disabled:
+Customize how LLM is utilized during the test generation process with the following adjustable properties:
+- `LLM_TEST_DATA`  
+Default: true  
+Enables LLMs to enhance test data generation.
 
-- `LLM_TEST_DATA`
-- `LLM_POST_PROCESSING_REPROMPT_BUDGET`
-- `LLM_POST_PROCESSING`
+- `LLM_POST_PROCESSING_REPROMPT_BUDGET`  
+Default: 2  
+Sets the number of additional prompts used for improving test cases during post-processing.  
 
-You can optimize LLM usage according to specific project needs.
+- ` LLM_POST_PROCESSING`  
+Default: true  
+Uses LLMs to refine the readability and clarity of test cases by improving identifiers and comments.
+
+- `LLM_GRAPHQL_ENTRYPOINT`  
+Default: 0.0.0.0:8000/graphql  
+Specifies the entrypoint URL for connecting to the utgen-llm-server.
+
+- `TEST_NAMING_STRATEGY`  
+  Default: numbered  
+  For LLM-based improvements to test names, set this to LLM_BASED.
+
+- `Test_Format`  
+Default: JUNIT5LLM  
+To leverage LLMs at any stage of the process, set this to JUNIT5LLM.
+
+- `Reformat`  
+Default: true  
+Automatically runs a prettifier to format the generated test cases.
+
+
+These properties allow you to fine-tune LLM integration to meet the specific needs of your project.
